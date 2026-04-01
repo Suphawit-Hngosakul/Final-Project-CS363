@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
+import errorHandler from './middleware/errorHandler.js'
+import authRoutes from './routes/auth.js'
 
 dotenv.config()
 
@@ -13,6 +15,9 @@ app.use(express.json())
 connectDB()
 
 app.get('/', (req, res) => res.json({ message: 'QR Order API running' }))
+app.use('/api/auth', authRoutes)
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))

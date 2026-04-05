@@ -7,4 +7,7 @@ const categorySchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
 }, { timestamps: true })
 
+// ชื่อหมวดหมู่ต้องไม่ซ้ำกันภายในร้านเดียวกัน
+categorySchema.index({ restaurantId: 1, name: 1 }, { unique: true })
+
 export default mongoose.model('Category', categorySchema)

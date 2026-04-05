@@ -9,7 +9,7 @@ const billSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     enum: ['cash', 'promptpay'],
-    default: null,
+    default: undefined,
   },
   paymentStatus: {
     type: String,
@@ -18,5 +18,9 @@ const billSchema = new mongoose.Schema({
   },
   paidAt: { type: Date, default: null },
 }, { timestamps: true })
+
+billSchema.index({ restaurantId: 1, paidAt: -1 })
+billSchema.index({ tableId: 1, sessionId: 1 })
+billSchema.index({ restaurantId: 1, paymentStatus: 1 })
 
 export default mongoose.model('Bill', billSchema)

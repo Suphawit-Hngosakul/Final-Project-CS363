@@ -22,4 +22,8 @@ const orderSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
 }, { timestamps: true })
 
+orderSchema.index({ restaurantId: 1, createdAt: -1 })
+orderSchema.index({ tableId: 1, sessionId: 1 })
+orderSchema.index({ restaurantId: 1, status: 1 })
+
 export default mongoose.model('Order', orderSchema)

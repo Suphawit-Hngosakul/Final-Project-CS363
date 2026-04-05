@@ -1,37 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { v4 as uuidv4 } from 'uuid'
 import createError from '../utils/createError.js'
 import * as menuRepo from '../repositories/menuItemRepository.js'
 import * as categoryRepo from '../repositories/categoryRepository.js'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-async function downloadImageFromUrl(imageUrl) {
-  const res = await fetch(imageUrl)
-  if (!res.ok) throw createError(400, `ดาวน์โหลดรูปไม่สำเร็จ: HTTP ${res.status}`)
-
-  const contentType = res.headers.get('content-type') || ''
-  const extMap = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
-  const ext = extMap[contentType.split(';')[0].trim()] || 'jpg'
-
-  const filename = `${uuidv4()}.${ext}`
-  const fullPath = path.join(__dirname, '..', 'uploads', filename)
-
-  const buffer = Buffer.from(await res.arrayBuffer())
-  await fs.promises.writeFile(fullPath, buffer)
-
-  return `/uploads/${filename}`
-}
-
-function deleteImageFile(imagePath) {
-  if (!imagePath || !imagePath.startsWith('/uploads/')) return
-  const fullPath = path.join(__dirname, '..', imagePath)
-  fs.unlink(fullPath, (err) => {
-    if (err && err.code !== 'ENOENT') console.error('Failed to delete image file:', err)
-  })
-}
 
 function parseOptions(raw) {
   if (!raw) return []
@@ -55,8 +24,8 @@ export const createMenuItem = async (restaurantId, body, file) => {
   }
 
   let image = ''
-  if (file) image = `/uploads/${file.filename}`
-  else if (imageUrl) image = await downloadImageFromUrl(imageUrl)
+  if (file) image = file.path          // Cloudinary URL
+  else if (imageUrl) image = imageUrl  // URL ตรงๆ
 
   return menuRepo.create({
     restaurantId,
@@ -80,11 +49,9 @@ export const updateMenuItem = async (id, body, file, adminRestaurantId) => {
   if (options !== undefined) updateData.options = parseOptions(options)
 
   if (file) {
-    deleteImageFile(existing.image)
-    updateData.image = `/uploads/${file.filename}`
+    updateData.image = file.path       // Cloudinary URL
   } else if (imageUrl !== undefined) {
-    deleteImageFile(existing.image)
-    updateData.image = await downloadImageFromUrl(imageUrl)
+    updateData.image = imageUrl        // URL ตรงๆ
   }
 
   return menuRepo.update(id, updateData)
@@ -96,7 +63,6 @@ export const deleteMenuItem = async (id, adminRestaurantId) => {
   if (item.restaurantId.toString() !== adminRestaurantId) throw createError(403, 'Forbidden')
 
   await menuRepo.remove(id)
-  deleteImageFile(item.image)
 }
 
 export const toggleAvailability = async (id, isAvailable, adminRestaurantId) => {

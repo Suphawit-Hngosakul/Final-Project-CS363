@@ -34,6 +34,27 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     { id: 6, number: '6', capacity: 8, status: 'occupied' },
   ]);
   const [checkoutData, setCheckoutData] = useState(null);
+  const [selectedFilter, setSelectedFilter] = useState('ทั้งหมด');
+  const [orders, setOrders] = useState([
+    {
+      id: 1,
+      tableNumber: '1',
+      name: 'ชาเขียวมิ้นต์',
+      quantity: 1,
+      option: '0',
+      status: 'pending',
+      time: '4/5/2569 00:03:13'
+    },
+    {
+      id: 2,
+      tableNumber: '2',
+      name: 'ชาไทย',
+      quantity: 2,
+      option: 'หวานน้อย',
+      status: 'accepted',
+      time: '4/5/2569 00:05:10'
+    }
+  ]);
 
   // --- เพิ่ม Logic สำหรับจัดการข้อมูล ---
 
@@ -92,6 +113,47 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     setCheckoutData(null);
     setSelectedTable('');
   };
+
+  const handleUpdateOrderStatus = (orderId) => {
+    setOrders(prev =>
+      prev.map(order => {
+        if (order.id !== orderId) return order;
+
+        let nextStatus = order.status;
+
+        switch (order.status) {
+          case 'pending':
+            nextStatus = 'accepted';
+            break;
+
+          case 'accepted':
+            nextStatus = 'cooking';
+            break;
+
+          case 'cooking':
+            nextStatus = 'ready';
+            break;
+
+          case 'ready':
+            nextStatus = 'served';
+            break;
+
+          default:
+            nextStatus = order.status;
+        }
+
+        return {
+          ...order,
+          status: nextStatus
+        };
+      })
+    );
+  };
+
+  const filteredOrders =
+    selectedFilter === 'ทั้งหมด'
+      ? orders
+      : orders.filter(order => order.status === selectedFilter);
 
   return (
     <div
@@ -219,7 +281,8 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                     {['ทั้งหมด', 'pending', 'accepted', 'cooking', 'ready', 'served'].map(filter => (
                       <button
                         key={filter}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${filter === 'ทั้งหมด'
+                        onClick={() => setSelectedFilter(filter)}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedFilter === filter
                           ? 'bg-[#0B3D4A] text-white border-[#0B3D4A]'
                           : 'bg-transparent border-[#0B3D4A] text-[#0B3D4A] hover:bg-[#0B3D4A]/10'
                           }`}
@@ -230,7 +293,10 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                   </div>
 
                   {/* ออเดอร์ของโต๊ะ */}
-                  <TableOrderBlock tableNumber="1" />
+                  <TableOrderBlock
+                    orders={filteredOrders}
+                    onAccept={handleUpdateOrderStatus}
+                  />
                 </div>
 
               </div>

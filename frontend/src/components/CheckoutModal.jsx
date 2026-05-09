@@ -30,24 +30,6 @@ export default function CheckoutModal({
 
                 {/* Header */}
                 <div className="px-8 pt-8 pb-4 flex items-center gap-4">
-                    <button
-                        onClick={onClose}
-                        className="flex items-center gap-2 border border-[#0B7285] text-[#0B3D4A] bg-white px-5 py-2.5 rounded-2xl font-black shadow-sm hover:bg-slate-50 transition-all"
-                    >
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <path d="M15 18l-6-6 6-6" />
-                        </svg>
-                        ย้อนกลับ
-                    </button>
 
                     <h2 className="text-[20px] md:text-[24px] font-black text-[#0B3D4A]">
                         Checkout
@@ -63,6 +45,8 @@ export default function CheckoutModal({
                         </label>
 
                         <div className="flex gap-3">
+
+                            {/* Dropdown */}
                             <div className="relative flex-1">
                                 <select
                                     value={selectedTable}
@@ -96,6 +80,18 @@ export default function CheckoutModal({
                                     </svg>
                                 </div>
                             </div>
+
+                            {/* Checkout Button */}
+                            <button
+                                onClick={() => {
+                                    if (selectedTable) {
+                                        onSelectTable(selectedTable);
+                                    }
+                                }}
+                                className="px-6 py-3.5 bg-white border border-[#0B7285] rounded-2xl text-[#0B3D4A] font-black shadow-sm hover:bg-[#ECF8F5] transition-all whitespace-nowrap"
+                            >
+                                Checkout
+                            </button>
                         </div>
                     </div>
 

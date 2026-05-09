@@ -23,16 +23,26 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   // --- เพิ่ม State สำหรับควบคุม Modal ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState('');
-  const [tables, setTables] = useState([]);
+  const [selectedCheckoutTable, setSelectedCheckoutTable] = useState('');
+  // const [tables, setTables] = useState([]);
+  const [tables] = useState([
+    { id: 1, number: '1', capacity: 4, status: 'available' },
+    { id: 2, number: '2', capacity: 2, status: 'occupied' },
+    { id: 3, number: '3', capacity: 4, status: 'available' },
+    { id: 4, number: '4', capacity: 6, status: 'available' },
+    { id: 5, number: '5', capacity: 4, status: 'available' },
+    { id: 6, number: '6', capacity: 8, status: 'occupied' },
+  ]);
   const [checkoutData, setCheckoutData] = useState(null);
 
   // --- เพิ่ม Logic สำหรับจัดการข้อมูล ---
 
   // ดึงรายชื่อโต๊ะ
-  const fetchTables = async () => {
+  /*const fetchTables = async () => {
     try {
       const res = await call('GET', `/api/restaurants/${user?.restaurantId}/tables`, null, token);
       setTables(res || []);
+      console.log(tables);
     } catch (err) {
       console.error('Fetch tables failed');
     }
@@ -41,7 +51,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   useEffect(() => {
     if (user?.restaurantId) fetchTables();
   }, [user]);
-
+*/
   // เมื่อเลือกโต๊ะใน Modal
   const handleSelectTable = async (tableNum) => {
     setSelectedTable(tableNum);
@@ -132,27 +142,70 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                 <div className="space-y-2">
                   <h3 className="text-sm font-black text-[#0B3D4A]">ชำระเงิน:</h3>
                   <div className="flex gap-3 max-w-sm">
+
+                    {/* Select Table */}
                     <div className="flex-1 relative">
-                      <select className="w-full appearance-none bg-white border border-[#AEE1D3] rounded-xl px-4 py-2 text-sm font-bold text-[#0B3D4A] shadow-sm outline-none focus:border-[#0B3D4A]">
-                        <option>โต๊ะ 1 - occupied</option>
+                      <select
+                        value={selectedCheckoutTable}
+                        onChange={(e) => setSelectedCheckoutTable(e.target.value)}
+                        className="w-full appearance-none bg-white border border-[#AEE1D3] rounded-xl px-4 py-2 text-sm font-bold text-[#0B3D4A] shadow-sm outline-none focus:border-[#0B3D4A]"
+                      >
+                        <option value="">เลือกโต๊ะ</option>
+
+                        {tables.map((table) => {
+                          const tableNo = table.number || table.tableNumber;
+
+                          return (
+                            <option
+                              key={table._id || tableNo}
+                              value={tableNo}
+                            >
+                              โต๊ะ {tableNo}
+                              {' • '}
+                              {table.status === 'available'
+                                ? 'Available'
+                                : 'Occupied'}
+                            </option>
+                          );
+                        })}
                       </select>
+
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B3D4A]"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-[#0B3D4A]"
+                        >
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                       </div>
                     </div>
+
+                    {/* Checkout Button */}
                     <button
-                      onClick={() => {
-                        setShowCheckoutModal(true);
+                      onClick={async () => {
+                        if (!selectedCheckoutTable) {
+                          toast.error('กรุณาเลือกโต๊ะ');
+                          return;
+                        }
 
-                        if (tables.length > 0) {
-                          const occupiedTable = tables.find(t => t.status === 'occupied');
+                        try {
+                          await handleSelectTable(selectedCheckoutTable);
 
-                          if (occupiedTable) {
-                            handleSelectTable(occupiedTable.number || occupiedTable.tableNumber);
-                          }
+                          setShowCheckoutModal(true);
+
+                        } catch (err) {
+                          toast.error('โหลดข้อมูลยอดชำระล้มเหลว');
                         }
                       }}
-                      className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-colors">
+                      className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-colors"
+                    >
                       Checkout
                     </button>
                   </div>

@@ -1,43 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import MenuCard from '../components/MenuCard';
 import MenuPopup from '../components/MenuPopup';
 import CategoryManagement from '../components/CategoryManagement';
+import { call } from '../utils/api';
+import { toast } from 'react-hot-toast';
 
-export default function MenuManagementPage() {
+export default function MenuManagementPage({ user, token }) {
+    const restaurantId = user?.restaurantId;
+
+    const [menus, setMenus] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [editingMenu, setEditingMenu] = useState(null);
-    const [menus, setMenus] = useState([
-        { id: 1, name: 'Name', price: 'NA', status: 'Available' },
-        { id: 2, name: 'Name', price: 'NA', status: 'Available' }
-    ]);
     const [showCategoryView, setShowCategoryView] = useState(false);
-    const [categories] = useState([
-        { id: 1, name: 'ทั้งหมด' },
-        { id: 2, name: 'ของว่าง' },
-        { id: 3, name: 'จานหลัก' }
-    ]);
+
+    const fetchMenus = useCallback(async () => {
+        if (!restaurantId) return;
+        setLoading(true);
+        try {
+            const [menuRes, catRes] = await Promise.all([
+                call('GET', `/api/restaurant/${restaurantId}/menu`, null, token),
+                call('GET', `/api/restaurant/${restaurantId}/categories`, null, token),
+            ]);
+            setMenus(menuRes ?? []);
+            setCategories(catRes ?? []);
+        } catch {
+            toast.error('โหลดข้อมูลล้มเหลว');
+        } finally {
+            setLoading(false);
+        }
+    }, [restaurantId, token]);
+
+    useEffect(() => { fetchMenus(); }, [fetchMenus]);
+
     const handleEdit = (menu) => {
         setEditingMenu(menu);
         setShowEditPopup(true);
     };
 
-    const handleDelete = (id) => {
-        setMenus((prev) => prev.filter((menu) => menu.id !== id));
+    const handleDelete = async (id) => {
+        if (!confirm('ลบเมนูนี้ไหม?')) return;
+        try {
+            await call('DELETE', `/api/menu/${id}`, null, token);
+            setMenus(prev => prev.filter(m => m._id !== id));
+            toast.success('ลบเมนูสำเร็จ');
+        } catch {
+            toast.error('ลบเมนูล้มเหลว');
+        }
     };
 
-    const handleToggleSale = (id) => {
-        setMenus((prev) =>
-            prev.map((menu) =>
-                menu.id === id
-                    ? {
-                          ...menu,
-                          status: menu.status === 'Available' ? 'Unavailable' : 'Available'
-                      }
-                    : menu
-            )
-        );
+    const handleToggleSale = async (menu) => {
+        try {
+            const updated = await call(
+                'PATCH',
+                `/api/menu/${menu._id}/availability`,
+                { isAvailable: !menu.isAvailable },
+                token
+            );
+            setMenus(prev => prev.map(m => m._id === menu._id ? updated : m));
+        } catch {
+            toast.error('อัปเดตสถานะล้มเหลว');
+        }
+    };
+
+    const handleSaveMenu = (saved) => {
+        setMenus(prev => {
+            const exists = prev.find(m => m._id === saved._id);
+            return exists ? prev.map(m => m._id === saved._id ? saved : m) : [...prev, saved];
+        });
     };
 
     return (
@@ -69,28 +102,44 @@ export default function MenuManagementPage() {
             </div>
 
             {!showCategoryView && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {menus.map((menu) => (
-                        <MenuCard
-                            key={menu.id}
-                            menu={menu}
-                            onEdit={() => handleEdit(menu)}
-                            onDelete={() => handleDelete(menu.id)}
-                            onToggleSale={() => handleToggleSale(menu.id)}
-                        />
-                    ))}
-                </div>
+                loading ? (
+                    <p className="text-sm text-slate-400">กำลังโหลด...</p>
+                ) : menus.length === 0 ? (
+                    <p className="text-sm text-slate-400">ยังไม่มีเมนู — กด "เพิ่ม" เพื่อเริ่มต้น</p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {menus.map((menu) => (
+                            <MenuCard
+                                key={menu._id}
+                                menu={menu}
+                                onEdit={() => handleEdit(menu)}
+                                onDelete={() => handleDelete(menu._id)}
+                                onToggleSale={() => handleToggleSale(menu)}
+                            />
+                        ))}
+                    </div>
+                )
             )}
 
             {showCategoryView && (
                 <div className="p-2">
-                    <CategoryManagement categories={categories} onClose={() => setShowCategoryView(false)} />
+                    <CategoryManagement
+                        categories={categories}
+                        restaurantId={restaurantId}
+                        token={token}
+                        onCategoriesChange={setCategories}
+                        onClose={() => setShowCategoryView(false)}
+                    />
                 </div>
             )}
 
             <MenuPopup
                 show={showAddPopup}
                 type="add"
+                restaurantId={restaurantId}
+                token={token}
+                categories={categories}
+                onSave={handleSaveMenu}
                 onClose={() => setShowAddPopup(false)}
             />
 
@@ -98,13 +147,15 @@ export default function MenuManagementPage() {
                 show={showEditPopup}
                 type="edit"
                 menu={editingMenu}
+                restaurantId={restaurantId}
+                token={token}
+                categories={categories}
+                onSave={handleSaveMenu}
                 onClose={() => {
                     setShowEditPopup(false);
                     setEditingMenu(null);
                 }}
             />
-
-            {/* CategoryPopup removed; CategoryManagement is shown inline when `showCategoryView` is true */}
         </div>
     );
 }

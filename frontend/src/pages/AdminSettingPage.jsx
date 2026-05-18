@@ -10,6 +10,7 @@ import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import MenuManagementPage from './MenuManagementPage';
 import RestaurantManagementPage from './RestaurantManagementPage';
+import ReportsPage from './ReportsPage';
 
 const TABS = [
   { id: 'orders_tables', label: 'ออเดอร์และโต๊ะ' },
@@ -22,59 +23,56 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   const [activeTab, setActiveTab] = useState('orders_tables');
   const navigate = useNavigate();
 
-  // --- เพิ่ม State สำหรับควบคุม Modal ---
+  // --- State ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState('');
   const [selectedCheckoutTable, setSelectedCheckoutTable] = useState('');
-  // const [tables, setTables] = useState([]);
-  const [tables] = useState([
-    { id: 1, number: '1', capacity: 4, status: 'available' },
-    { id: 2, number: '2', capacity: 2, status: 'occupied' },
-    { id: 3, number: '3', capacity: 4, status: 'available' },
-    { id: 4, number: '4', capacity: 6, status: 'available' },
-    { id: 5, number: '5', capacity: 4, status: 'available' },
-    { id: 6, number: '6', capacity: 8, status: 'occupied' },
-  ]);
+  const [tables, setTables] = useState([]);
   const [checkoutData, setCheckoutData] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('ทั้งหมด');
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      tableNumber: '1',
-      name: 'ชาเขียวมิ้นต์',
-      quantity: 1,
-      option: '0',
-      status: 'pending',
-      time: '4/5/2569 00:03:13'
-    },
-    {
-      id: 2,
-      tableNumber: '2',
-      name: 'ชาไทย',
-      quantity: 2,
-      option: 'หวานน้อย',
-      status: 'accepted',
-      time: '4/5/2569 00:05:10'
-    }
-  ]);
+  const [rawOrders, setRawOrders] = useState([]);
 
-  // --- เพิ่ม Logic สำหรับจัดการข้อมูล ---
+  // flatten API orders → รูปแบบที่ OrderItemCard ใช้
+  const flatOrders = rawOrders.flatMap(order => {
+    const tableNum = tables.find(t => t._id === order.tableId?.toString() || t._id === order.tableId)?.tableNumber ?? '?';
+    return order.items.map((item, idx) => ({
+      id: `${order._id}_${idx}`,
+      orderId: order._id,
+      tableNumber: tableNum,
+      name: item.name,
+      quantity: item.quantity,
+      option: item.options?.length > 0 ? item.options.map(o => `${o.name}: ${o.choice}`).join(', ') : '-',
+      status: order.status,
+      time: new Date(order.createdAt).toLocaleString('th-TH'),
+    }));
+  });
 
-  // ดึงรายชื่อโต๊ะ
-  /*const fetchTables = async () => {
+  const fetchTables = async () => {
+    if (!user?.restaurantId) return;
     try {
-      const res = await call('GET', `/api/restaurants/${user?.restaurantId}/tables`, null, token);
+      const res = await call('GET', `/api/restaurant/${user.restaurantId}/tables`, null, token);
       setTables(res || []);
-      console.log(tables);
-    } catch (err) {
-      console.error('Fetch tables failed');
+    } catch {
+      toast.error('โหลดโต๊ะล้มเหลว');
+    }
+  };
+
+  const fetchOrders = async () => {
+    if (!user?.restaurantId) return;
+    try {
+      const res = await call('GET', `/api/restaurant/${user.restaurantId}/orders`, null, token);
+      setRawOrders(res || []);
+    } catch {
+      toast.error('โหลดออเดอร์ล้มเหลว');
     }
   };
 
   useEffect(() => {
-    if (user?.restaurantId) fetchTables();
-  }, [user]);
-*/
+    if (user?.restaurantId) {
+      fetchTables();
+      fetchOrders();
+    }
+  }, [user?.restaurantId]);
   // เมื่อเลือกโต๊ะใน Modal
   const handleSelectTable = async (tableNum) => {
     setSelectedTable(tableNum);
@@ -83,7 +81,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       return;
     }
     try {
-      const res = await call('GET', `/api/restaurants/${user?.restaurantId}/tables/${tableNum}/checkout`, null, token);
+      const res = await call('GET', `/api/restaurant/${user?.restaurantId}/tables/${tableNum}/checkout`, null, token);
       setCheckoutData(res);
     } catch (err) {
       toast.error('โหลดข้อมูลยอดชำระล้มเหลว');
@@ -94,7 +92,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     try {
       await call(
         'POST',
-        `/api/restaurants/${user?.restaurantId}/tables/${selectedTable}/checkout`,
+        `/api/restaurant/${user?.restaurantId}/tables/${selectedTable}/checkout`,
         {
           paymentMethod
         },
@@ -116,46 +114,25 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     setSelectedTable('');
   };
 
-  const handleUpdateOrderStatus = (orderId) => {
-    setOrders(prev =>
-      prev.map(order => {
-        if (order.id !== orderId) return order;
+  const NEXT_STATUS = { pending: 'accepted', accepted: 'cooking', cooking: 'ready', ready: 'served' };
 
-        let nextStatus = order.status;
-
-        switch (order.status) {
-          case 'pending':
-            nextStatus = 'accepted';
-            break;
-
-          case 'accepted':
-            nextStatus = 'cooking';
-            break;
-
-          case 'cooking':
-            nextStatus = 'ready';
-            break;
-
-          case 'ready':
-            nextStatus = 'served';
-            break;
-
-          default:
-            nextStatus = order.status;
-        }
-
-        return {
-          ...order,
-          status: nextStatus
-        };
-      })
-    );
+  const handleUpdateOrderStatus = async (flatId) => {
+    const flat = flatOrders.find(o => o.id === flatId);
+    if (!flat || !NEXT_STATUS[flat.status]) return;
+    try {
+      await call('PATCH', `/api/orders/${flat.orderId}/status`, { status: NEXT_STATUS[flat.status] }, token);
+      setRawOrders(prev =>
+        prev.map(o => o._id === flat.orderId ? { ...o, status: NEXT_STATUS[flat.status] } : o)
+      );
+    } catch {
+      toast.error('อัปเดตสถานะล้มเหลว');
+    }
   };
 
   const filteredOrders =
     selectedFilter === 'ทั้งหมด'
-      ? orders
-      : orders.filter(order => order.status === selectedFilter);
+      ? flatOrders
+      : flatOrders.filter(order => order.status === selectedFilter);
 
   return (
     <div
@@ -183,7 +160,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black text-[#0B3D4A]">ออเดอร์และโต๊ะ</h2>
-                  <RefreshButton />
+                  <RefreshButton onClick={() => { fetchTables(); fetchOrders(); }} />
                 </div>
 
                 {/* จัดการโต๊ะ */}
@@ -216,22 +193,11 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                       >
                         <option value="">เลือกโต๊ะ</option>
 
-                        {tables.map((table) => {
-                          const tableNo = table.number || table.tableNumber;
-
-                          return (
-                            <option
-                              key={table._id || tableNo}
-                              value={tableNo}
-                            >
-                              โต๊ะ {tableNo}
-                              {' • '}
-                              {table.status === 'available'
-                                ? 'Available'
-                                : 'Occupied'}
-                            </option>
-                          );
-                        })}
+                        {tables.map((table) => (
+                          <option key={table._id} value={table.tableNumber}>
+                            โต๊ะ {table.tableNumber} • {table.status === 'available' ? 'Available' : table.status === 'payment' ? 'Payment' : 'Occupied'}
+                          </option>
+                        ))}
                       </select>
 
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -305,12 +271,14 @@ export default function AdminSettingPage({ user, onLogout, token }) {
             )}
 
             {activeTab === 'menu' && (
-              <MenuManagementPage />
+              <MenuManagementPage user={user} token={token} />
             )}
             {activeTab === 'restaurant' && (
               <RestaurantManagementPage user={user} token={token} />
             )}
-            {activeTab === 'reports' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน รายงาน...</div>}
+            {activeTab === 'reports' && (
+              <ReportsPage user={user} token={token} />
+            )}
           </div>
         </div>
       </main>

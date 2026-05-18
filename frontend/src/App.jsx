@@ -58,7 +58,7 @@ export default function App() {
         />
         <Route 
           path="/*" 
-          element={<AdminSettingPage user={user} onLogout={handleLogout} />} 
+          element={<AdminSettingPage user={user} onLogout={handleLogout} token={token} />}
         />
       </Routes>
       <Toaster 

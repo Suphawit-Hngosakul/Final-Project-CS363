@@ -9,6 +9,7 @@ import CheckoutModal from '../components/CheckoutModal';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 import MenuManagementPage from './MenuManagementPage';
+import RestaurantManagementPage from './RestaurantManagementPage';
 
 const TABS = [
   { id: 'orders_tables', label: 'ออเดอร์และโต๊ะ' },
@@ -306,7 +307,9 @@ export default function AdminSettingPage({ user, onLogout, token }) {
             {activeTab === 'menu' && (
               <MenuManagementPage />
             )}
-            {activeTab === 'restaurant' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน จัดการร้านอาหาร...</div>}
+            {activeTab === 'restaurant' && (
+              <RestaurantManagementPage user={user} token={token} />
+            )}
             {activeTab === 'reports' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน รายงาน...</div>}
           </div>
         </div>

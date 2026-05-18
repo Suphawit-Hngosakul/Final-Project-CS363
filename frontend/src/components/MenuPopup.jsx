@@ -31,10 +31,10 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null }) 
     const modal = (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
             <div
-                className="w-full max-w-[720px] rounded-[18px] bg-[#F9FAFB] shadow-2xl animate-in fade-in duration-200 overflow-hidden"
+                className="w-full max-w-[720px] rounded-[18px] bg-[#F9FAFB] shadow-2xl animate-in fade-in duration-200 flex flex-col"
                 style={{ maxHeight: 'calc(100vh - 80px)' }}
             >
-                <div style={{ maxHeight: 'calc(100vh - 160px)', overflow: 'auto', paddingRight: 20 }} className="px-6 pt-6">
+                <div className="flex-1 overflow-y-auto px-6 pt-6 pr-5">
                     <h3 className="text-center text-2xl font-black text-[#0B3D4A] mb-6">{isEdit ? 'แก้ไขเมนู' : 'เพิ่มเมนู'}</h3>
 
                     <div className="grid grid-cols-1 gap-4">
@@ -105,7 +105,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null }) 
                     </div>
                 </div>
 
-                <div className="px-6 pb-6 pt-4" style={{ paddingRight: 20 }}>
+                <div className="px-6 pb-6 pt-4 flex-shrink-0">
                     <div className="border-t border-slate-200 pt-6 flex items-center justify-between" style={{ gap: 12 }}>
                         <button
                             onClick={onClose}

@@ -8,6 +8,7 @@ import RefreshButton from '../components/RefreshButton';
 import CheckoutModal from '../components/CheckoutModal';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
+import MenuManagementPage from './MenuManagementPage';
 
 const TABS = [
   { id: 'orders_tables', label: 'ออเดอร์และโต๊ะ' },
@@ -302,7 +303,9 @@ export default function AdminSettingPage({ user, onLogout, token }) {
               </div>
             )}
 
-            {activeTab === 'menu' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน จัดการเมนูอาหาร...</div>}
+            {activeTab === 'menu' && (
+              <MenuManagementPage />
+            )}
             {activeTab === 'restaurant' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน จัดการร้านอาหาร...</div>}
             {activeTab === 'reports' && <div className="text-[#0B3D4A]">กำลังพัฒนาส่วน รายงาน...</div>}
           </div>

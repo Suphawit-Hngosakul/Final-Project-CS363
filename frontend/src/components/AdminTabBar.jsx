@@ -10,11 +10,10 @@ export default function AdminTabBar({ tabs, activeTab, onTabChange }) {
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`px-8 py-4 text-center font-bold text-sm transition-all ${
-              isActive 
-                ? `bg-[#0B3D4A] text-white ${isFirst ? 'rounded-br-2xl' : 'rounded-b-2xl'} shadow-md z-10` 
+            className={`px-8 py-4 text-center font-bold text-sm transition-all ${isActive
+                ? `bg-[#0B3D4A] text-white ${isFirst ? 'rounded-br-2xl' : 'rounded-b-2xl'} shadow-md z-10`
                 : 'text-[#0B3D4A] hover:bg-white/50'
-            }`}
+              }`}
           >
             {tab.label}
           </button>

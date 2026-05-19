@@ -5,7 +5,7 @@ export default function MenuCard({ menu, onEdit, onDelete, onToggleSale }) {
     const available = menu?.isAvailable !== false;
 
     return (
-        <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full w-[260px]">
+        <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col h-full w-full">
             <div className="h-40 bg-gray-200 w-full relative overflow-hidden">
                 {menu?.image ? (
                     <img

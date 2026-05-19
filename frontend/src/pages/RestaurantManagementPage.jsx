@@ -114,18 +114,18 @@ export default function RestaurantManagementPage({ user, token }) {
     return (
       <div className="space-y-5">
         <p className="text-[15px] font-black text-[#0B3D4A]">โปรดกรอก PIN</p>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             type="password"
             value={pinInput}
             onChange={(e) => setPinInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !verifying && handleVerifyPin()}
-            className="w-64 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm"
+            className="w-full sm:w-64 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm"
           />
           <button
             onClick={handleVerifyPin}
             disabled={verifying}
-            className="px-5 py-3 border border-[#0B7285] text-[#0B3D4A] rounded-xl font-bold hover:bg-slate-50 transition-colors disabled:opacity-60"
+            className="w-full sm:w-auto px-5 py-3 border border-[#0B7285] text-[#0B3D4A] rounded-xl font-bold hover:bg-slate-50 transition-colors disabled:opacity-60"
           >
             {verifying ? 'กำลังตรวจสอบ...' : 'ดำเนินการต่อ'}
           </button>
@@ -157,7 +157,7 @@ export default function RestaurantManagementPage({ user, token }) {
           <span className="font-black text-base">ตั้งค่าอื่น ๆ</span>
         </div>
 
-        <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center gap-6">
             <span className="w-24 text-[15px] font-bold text-[#0B3D4A] shrink-0">จำนวนโต๊ะ</span>
             <input
@@ -169,7 +169,7 @@ export default function RestaurantManagementPage({ user, token }) {
             />
           </div>
 
-          <div className="flex items-center gap-3 ml-4">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-[13px] font-bold text-[#0B3D4A] border border-[#AEE1D3] rounded-full px-3 py-1 bg-white">
               Restaurant ID (ใช้ในการทดสอบ)
             </span>
@@ -181,14 +181,14 @@ export default function RestaurantManagementPage({ user, token }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-slate-200">
         <span className="text-sm text-slate-400">
           สร้างเมื่อ {formatDate(restaurant?.createdAt)}
         </span>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2.5 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-all disabled:opacity-60"
+          className="w-full sm:w-auto px-6 py-2.5 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-all disabled:opacity-60"
         >
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>

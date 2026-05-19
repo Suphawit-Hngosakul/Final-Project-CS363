@@ -23,13 +23,13 @@ export default function TableCard({ table, token }) {
   const canOrder = status === 'available';
 
   return (
-    <div className={`rounded-[32px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col items-center w-full max-w-[260px] mx-auto border ${
+    <div className={`rounded-[32px] p-5 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col items-center w-full border ${
       status === 'occupied' ? 'bg-[#F0F0F0] border-slate-300' : 'bg-[#F8FAF9] border-white'
     }`}>
 
       <span className={`text-2xl font-black mb-2 tracking-wide ${status === 'occupied' ? 'text-slate-500' : 'text-[#0B3D4A]'}`}>โต๊ะ</span>
 
-      <span className={`text-[80px] leading-none font-black mb-8 ${status === 'occupied' ? 'text-slate-400' : 'text-[#0B3D4A]'}`}>
+      <span className={`text-[60px] md:text-[80px] leading-none font-black mb-6 md:mb-8 ${status === 'occupied' ? 'text-slate-400' : 'text-[#0B3D4A]'}`}>
         {table?.tableNumber || '1'}
       </span>
 

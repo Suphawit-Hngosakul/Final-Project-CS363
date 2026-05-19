@@ -3,7 +3,7 @@ import OrderItemCard from './OrderItemCard';
 
 export default function TableOrderBlock({ orders, onAccept }) {
   return (
-    <div className="bg-[#F8FAF9] rounded-3xl p-6 shadow-sm border border-white/60">
+    <div className="bg-[#F8FAF9] rounded-3xl p-3 md:p-6 shadow-sm border border-white/60">
 
       <div className="space-y-3">
         {orders.length > 0 ? (

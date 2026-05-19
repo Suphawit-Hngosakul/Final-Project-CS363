@@ -34,17 +34,27 @@ export default function CheckoutModal({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-[600px] rounded-[32px] bg-[#F9FAFB] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="relative w-full max-w-[600px] rounded-[32px] bg-[#F9FAFB] shadow-2xl overflow-y-auto max-h-[calc(100dvh-2rem)] animate-in fade-in zoom-in duration-200">
 
                 {/* Header */}
-                <div className="px-8 pt-8 pb-4 flex items-center gap-4">
+                <div className="px-4 pt-6 pb-4 md:px-8 md:pt-8 flex items-center justify-between gap-4">
+                    {/* ย้อนกลับ — mobile only */}
+                    <button
+                        onClick={onClose}
+                        className="md:hidden flex items-center gap-1.5 px-3 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                        ย้อนกลับ
+                    </button>
 
                     <h2 className="text-[20px] md:text-[24px] font-black text-[#0B3D4A]">
                         Checkout
                     </h2>
                 </div>
 
-                <div className="px-8 pb-8 space-y-6">
+                <div className="px-4 pb-6 md:px-8 md:pb-8 space-y-6">
 
                     {/* เลือกโต๊ะ */}
                     <div>
@@ -52,7 +62,7 @@ export default function CheckoutModal({
                             เลือกโต๊ะ
                         </label>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
 
                             {/* Dropdown */}
                             <div className="relative flex-1">
@@ -94,7 +104,7 @@ export default function CheckoutModal({
                                 onClick={() => {
                                     if (pendingTable) onSelectTable(pendingTable);
                                 }}
-                                className="px-6 py-3.5 bg-white border border-[#0B7285] rounded-2xl text-[#0B3D4A] font-black shadow-sm hover:bg-[#ECF8F5] transition-all whitespace-nowrap"
+                                className="w-full sm:w-auto px-6 py-3.5 bg-white border border-[#0B7285] rounded-2xl text-[#0B3D4A] font-black shadow-sm hover:bg-[#ECF8F5] transition-all whitespace-nowrap"
                             >
                                 Checkout
                             </button>
@@ -174,7 +184,7 @@ export default function CheckoutModal({
                     <div className="flex items-center justify-between gap-5 pt-2">
                         <button
                             onClick={onClose}
-                            className="flex-1 border border-[#0B7285] bg-white text-[#0B3D4A] py-3.5 rounded-2xl font-black shadow-sm hover:bg-slate-50 transition-all"
+                            className="hidden sm:block sm:flex-1 border border-[#0B7285] bg-white text-[#0B3D4A] py-3.5 rounded-2xl font-black shadow-sm hover:bg-slate-50 transition-all"
                         >
                             ยกเลิก
                         </button>

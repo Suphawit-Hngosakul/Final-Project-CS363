@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 
 function StatCard({ label, value }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E6EEF0] p-6 flex flex-col items-center justify-center gap-2 min-w-[180px]">
+    <div className="bg-white rounded-2xl shadow-sm border border-[#E6EEF0] p-6 flex flex-col items-center justify-center gap-2 w-full">
       <span className="text-[15px] font-bold text-[#0B3D4A]">{label}</span>
       <span className="text-4xl font-black text-[#0B3D4A]">{value}</span>
     </div>
@@ -82,12 +82,12 @@ export default function ReportsPage({ user, token }) {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="bg-white border border-[#E6EEF0] rounded-xl px-4 py-2.5 text-[15px] text-[#0B3D4A] outline-none focus:border-[#0B3D4A] shadow-sm"
+          className="w-full sm:w-auto bg-white border border-[#E6EEF0] rounded-xl px-4 py-2.5 text-[15px] text-[#0B3D4A] outline-none focus:border-[#0B3D4A] shadow-sm"
         />
       </div>
 
       {/* Stats */}
-      <div className="flex gap-4 flex-wrap">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
           label="ยอดรวม"
           value={loading ? '...' : `฿${formatCurrency(report?.totalRevenue)}`}
@@ -105,7 +105,7 @@ export default function ReportsPage({ user, token }) {
         {popularItems.length === 0 && !loading ? (
           <p className="text-sm text-slate-400">ยังไม่มีข้อมูล</p>
         ) : (
-          <div className="grid grid-cols-2 gap-4" style={{ minHeight: 160 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ minHeight: 160 }}>
             {/* #1 large */}
             <div>
               <RankCard rank={1} item={popularItems[0]} large />

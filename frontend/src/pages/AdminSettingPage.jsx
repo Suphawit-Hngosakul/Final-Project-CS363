@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import bgImage from '../components/BG.png';
 import TopNavBar from '../components/TopNavBar';
 import AdminTabBar from '../components/AdminTabBar';
+import MobileDrawer from '../components/MobileDrawer';
 import TableOrderBlock from '../components/TableOrderBlock';
 import RefreshButton from '../components/RefreshButton';
 import CheckoutModal from '../components/CheckoutModal';
@@ -21,6 +22,7 @@ const TABS = [
 
 export default function AdminSettingPage({ user, onLogout, token }) {
   const [activeTab, setActiveTab] = useState('orders_tables');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   // --- State ---
@@ -143,7 +145,18 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       style={{ backgroundImage: `url(${bgImage})`, backgroundColor: '#f0f4f8' }}
     >
       {/* Header */}
-      <TopNavBar user={user} onLogout={onLogout} />
+      <TopNavBar user={user} onLogout={onLogout} onOpenMenu={() => setDrawerOpen(true)} />
+
+      {/* Mobile Drawer */}
+      <MobileDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        user={user}
+        onLogout={onLogout}
+      />
 
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4 pb-8">
@@ -158,7 +171,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
           />
 
           {/* Content Area */}
-          <div className="p-8 flex-1">
+          <div className="p-4 md:p-8 flex-1">
             {activeTab === 'orders_tables' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -188,7 +201,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                 {/* ชำระเงิน */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-black text-[#0B3D4A]">ชำระเงิน:</h3>
-                  <div className="flex gap-3 max-w-sm">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:max-w-sm">
 
                     {/* Select Table */}
                     <div className="flex-1 relative">
@@ -240,7 +253,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                           toast.error('โหลดข้อมูลยอดชำระล้มเหลว');
                         }
                       }}
-                      className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-colors"
+                      className="w-full sm:w-auto px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-colors"
                     >
                       Checkout
                     </button>
@@ -250,13 +263,35 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                 {/* จัดการออเดอร์ */}
                 <div className="space-y-4 pt-2">
                   <h3 className="text-sm font-black text-[#0B3D4A]">จัดการออเดอร์:</h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-[#0B3D4A] font-bold mr-2">กรอง:</span>
+                  {/* Mobile: dropdown */}
+                  <div className="flex items-center gap-2 md:hidden">
+                    <span className="text-xs text-[#0B3D4A] font-bold shrink-0">กรอง:</span>
+                    <div className="relative flex-1 max-w-[180px]">
+                      <select
+                        value={selectedFilter}
+                        onChange={(e) => setSelectedFilter(e.target.value)}
+                        className="w-full appearance-none bg-[#0B3D4A] text-white rounded-full px-4 py-1.5 text-xs font-bold outline-none shadow-sm"
+                      >
+                        {['ทั้งหมด', 'pending', 'accepted', 'cooking', 'ready', 'served'].map(f => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop: filter buttons */}
+                  <div className="hidden md:flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-[#0B3D4A] font-bold mr-1">กรอง:</span>
                     {['ทั้งหมด', 'pending', 'accepted', 'cooking', 'ready', 'served'].map(filter => (
                       <button
                         key={filter}
                         onClick={() => setSelectedFilter(filter)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedFilter === filter
+                        className={`shrink-0 px-3 md:px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedFilter === filter
                           ? 'bg-[#0B3D4A] text-white border-[#0B3D4A]'
                           : 'bg-transparent border-[#0B3D4A] text-[#0B3D4A] hover:bg-[#0B3D4A]/10'
                           }`}

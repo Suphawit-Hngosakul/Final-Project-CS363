@@ -1,19 +1,5 @@
 import React from 'react';
-
-const STATUS_STYLE = {
-  pending: 'bg-[#D99A29]',
-  accepted: 'bg-[#4B8BFF]',
-  cooking: 'bg-[#F28C28]',
-  ready: 'bg-[#38B26C]',
-  served: 'bg-[#0B3D4A]'
-};
-
-const BUTTON_LABEL = {
-  pending: 'Accept',
-  accepted: 'Cooking',
-  cooking: 'Ready',
-  ready: 'Served'
-};
+import { STATUS_COLOR, NEXT_STATUS_LABEL } from '../utils/orderStatus';
 
 export default function OrderItemCard({ order, onAccept }) {
   return (
@@ -23,7 +9,7 @@ export default function OrderItemCard({ order, onAccept }) {
       <div className="flex flex-col gap-1.5 md:hidden">
         <div className="flex items-center gap-2 mb-1">
           <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
-          <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}>
+          <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLOR[order.status]}`}>
             {order.status}
           </span>
         </div>
@@ -40,7 +26,7 @@ export default function OrderItemCard({ order, onAccept }) {
             onClick={() => onAccept(order.id)}
             className="w-full mt-1 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-all"
           >
-            {BUTTON_LABEL[order.status]}
+            {NEXT_STATUS_LABEL[order.status]}
           </button>
         )}
         <p className="text-xs font-semibold text-slate-500 text-right">{order.time}</p>
@@ -51,7 +37,7 @@ export default function OrderItemCard({ order, onAccept }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
-            <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}>
+            <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLOR[order.status]}`}>
               {order.status}
             </span>
           </div>
@@ -71,7 +57,7 @@ export default function OrderItemCard({ order, onAccept }) {
               onClick={() => onAccept(order.id)}
               className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-all"
             >
-              {BUTTON_LABEL[order.status]}
+              {NEXT_STATUS_LABEL[order.status]}
             </button>
           )}
         </div>

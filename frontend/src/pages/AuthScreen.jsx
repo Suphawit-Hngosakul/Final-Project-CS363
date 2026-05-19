@@ -13,25 +13,14 @@ const Inp = ({ label, className = '', ...p }) => (
   </div>
 );
 
-const Btn = ({ children, variant = 'primary', size = 'md', className = '', ...p }) => {
-  const v = {
-    primary: 'bg-white hover:bg-slate-50 text-[#134455] border border-[#48c7a6] shadow-sm',
-    danger: 'bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/20',
-    ghost: 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10',
-    success: 'bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/20',
-    warning: 'bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 border border-yellow-500/20'
-  };
-  const s = {
-    sm: 'px-2.5 py-1 text-[11px]',
-    md: 'px-3.5 py-1.5 text-xs',
-    lg: 'px-5 py-2.5 text-sm'
-  };
-  return (
-    <button className={`rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${v[variant]} ${s[size]} ${className}`} {...p}>
-      {children}
-    </button>
-  );
-};
+const Btn = ({ children, className = '', ...p }) => (
+  <button
+    className={`rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-white hover:bg-slate-50 text-[#134455] border border-[#48c7a6] shadow-sm px-5 py-2.5 text-sm ${className}`}
+    {...p}
+  >
+    {children}
+  </button>
+);
 
 export default function AuthScreen({ onLogin }) {
   const [tab, setTab] = useState('login');
@@ -88,7 +77,7 @@ export default function AuthScreen({ onLogin }) {
             <Inp label="PASSWORD" type="password" placeholder="" value={form.password} onChange={set('password')} required />
 
             <div className="pt-2">
-              <Btn size="lg" className="w-full flex justify-center items-center h-[46px]" disabled={loading}>
+              <Btn className="w-full flex justify-center items-center h-[46px]" disabled={loading}>
                 {loading ? 'กำลังดำเนินการ…' : tab === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
               </Btn>
             </div>

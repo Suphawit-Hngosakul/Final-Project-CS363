@@ -42,8 +42,11 @@ function formatDate(dateStr) {
 }
 
 export default function RestaurantManagementPage({ user, token }) {
-  const [pinVerified, setPinVerified] = useState(false);
-  const [pinInput, setPinInput] = useState('');
+  const restaurantId = user?.restaurantId;
+
+  const [unlocked, setUnlocked] = useState(false);
+  const [hasPin, setHasPin] = useState(null); // null = ยังโหลดไม่เสร็จ
+  const [credInput, setCredInput] = useState('');
   const [verifying, setVerifying] = useState(false);
 
   const [restaurant, setRestaurant] = useState(null);
@@ -53,40 +56,50 @@ export default function RestaurantManagementPage({ user, token }) {
   const [tableCount, setTableCount] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (!pinVerified) setPinInput('');
-  }, [pinVerified]);
+  const [newPin, setNewPin] = useState('');
+  const [savingPin, setSavingPin] = useState(false);
 
-  const handleVerifyPin = async () => {
-    if (!pinInput.trim()) {
-      toast.error('กรุณากรอก password');
+  // โหลดข้อมูลร้าน — ใช้รู้ว่าตั้ง PIN ไว้หรือยัง (hasPin) และเตรียมข้อมูลฟอร์ม
+  const loadRestaurant = async () => {
+    if (!restaurantId) return;
+    const res = await call('GET', `/api/restaurant/${restaurantId}`, null, token);
+    setRestaurant(res);
+    setName(res.name || '');
+    setAddress(res.address || '');
+    setPhone(res.phone || '');
+    setTableCount(res.tableCount ?? '');
+    setHasPin(!!res.hasPin);
+  };
+
+  useEffect(() => {
+    loadRestaurant().catch(() => {
+      toast.error('โหลดข้อมูลร้านล้มเหลว');
+      setHasPin(false);
+    });
+  }, [restaurantId]);
+
+  const handleUnlock = async () => {
+    const value = credInput.trim();
+    if (!value) {
+      toast.error(hasPin ? 'กรุณากรอก PIN' : 'กรุณากรอกรหัสผ่าน');
       return;
     }
     setVerifying(true);
     try {
-      // re-authenticate ด้วย email + password ของ user ที่ login อยู่
-      const loginRes = await call('POST', '/api/auth/login', {
-        email: user?.email,
-        password: pinInput.trim(),
-      });
-
-      // ใช้ token จาก login response หรือ token prop (อย่างใดอย่างหนึ่ง)
-      const authToken = loginRes?.token || token;
-
-      // ถ้าผ่าน → fetch ข้อมูลร้าน
-      const res = await call('GET', `/api/restaurant/${user?.restaurantId}`, null, authToken);
-      setRestaurant(res);
-      setName(res.name || '');
-      setAddress(res.address || '');
-      setPhone(res.phone || '');
-      setTableCount(res.tableCount ?? '');
-      setPinVerified(true);
+      if (hasPin) {
+        await call('POST', `/api/restaurant/${restaurantId}/pin/verify`, { pin: value }, token);
+      } else {
+        // ร้านยังไม่ได้ตั้ง PIN → ปลดล็อกครั้งแรกด้วยรหัสผ่านบัญชี
+        await call('POST', '/api/auth/verify-password', { password: value }, token);
+      }
+      setUnlocked(true);
+      setCredInput('');
     } catch (err) {
       const status = err?.response?.status;
       if (status === 401) {
-        toast.error('Password ไม่ถูกต้อง');
+        toast.error(hasPin ? 'PIN ไม่ถูกต้อง' : 'รหัสผ่านไม่ถูกต้อง');
       } else {
-        toast.error('ไม่สามารถตรวจสอบได้');
+        toast.error('ตรวจสอบไม่สำเร็จ');
       }
     } finally {
       setVerifying(false);
@@ -98,7 +111,7 @@ export default function RestaurantManagementPage({ user, token }) {
     try {
       await call(
         'PUT',
-        `/api/restaurant/${user?.restaurantId}`,
+        `/api/restaurant/${restaurantId}`,
         { name, address, phone, tableCount: Number(tableCount) },
         token
       );
@@ -110,20 +123,46 @@ export default function RestaurantManagementPage({ user, token }) {
     }
   };
 
-  if (!pinVerified) {
+  const handleSavePin = async () => {
+    if (!/^\d{4,6}$/.test(newPin)) {
+      toast.error('PIN ต้องเป็นตัวเลข 4-6 หลัก');
+      return;
+    }
+    setSavingPin(true);
+    try {
+      await call('PUT', `/api/restaurant/${restaurantId}/pin`, { pin: newPin }, token);
+      toast.success(hasPin ? 'เปลี่ยน PIN สำเร็จ' : 'ตั้ง PIN สำเร็จ');
+      setHasPin(true);
+      setNewPin('');
+    } catch {
+      toast.error('บันทึก PIN ล้มเหลว');
+    } finally {
+      setSavingPin(false);
+    }
+  };
+
+  if (!unlocked) {
+    if (hasPin === null) {
+      return <p className="text-sm text-slate-400">กำลังโหลด...</p>;
+    }
     return (
       <div className="space-y-5">
-        <p className="text-[15px] font-black text-[#0B3D4A]">โปรดกรอก PIN</p>
+        <p className="text-[15px] font-black text-[#0B3D4A]">
+          {hasPin
+            ? 'โปรดกรอก PIN เพื่อเข้าหน้าตั้งค่า'
+            : 'ยังไม่ได้ตั้ง PIN — กรอกรหัสผ่านบัญชีเพื่อเข้าครั้งแรก'}
+        </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             type="password"
-            value={pinInput}
-            onChange={(e) => setPinInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !verifying && handleVerifyPin()}
+            value={credInput}
+            onChange={(e) => setCredInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !verifying && handleUnlock()}
+            placeholder={hasPin ? 'PIN' : 'รหัสผ่าน'}
             className="w-full sm:w-64 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm"
           />
           <button
-            onClick={handleVerifyPin}
+            onClick={handleUnlock}
             disabled={verifying}
             className="w-full sm:w-auto px-5 py-3 border border-[#0B7285] text-[#0B3D4A] rounded-xl font-bold hover:bg-slate-50 transition-colors disabled:opacity-60"
           >
@@ -177,6 +216,38 @@ export default function RestaurantManagementPage({ user, token }) {
               {restaurant?._id || restaurant?.id || '-'}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* PIN ปลดล็อก */}
+      <div className="space-y-5">
+        <div className="flex items-center gap-2 text-[#0B3D4A]">
+          <SettingsIcon />
+          <span className="font-black text-base">PIN สำหรับปลดล็อก</span>
+        </div>
+
+        <p className="text-sm text-slate-500">
+          {hasPin
+            ? 'PIN ใช้สำหรับเข้าหน้าตั้งค่านี้ และกลับหน้า Admin จากหน้าสั่งอาหารของลูกค้า — กรอกใหม่เพื่อเปลี่ยน'
+            : 'ยังไม่ได้ตั้ง PIN — แนะนำให้ตั้งเพื่อไม่ต้องใช้รหัสผ่านบัญชีจริง'}
+        </p>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            type="password"
+            inputMode="numeric"
+            value={newPin}
+            onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            placeholder="ตัวเลข 4-6 หลัก"
+            className="w-full sm:w-64 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm"
+          />
+          <button
+            onClick={handleSavePin}
+            disabled={savingPin}
+            className="w-full sm:w-auto px-5 py-3 border border-[#0B7285] text-[#0B3D4A] rounded-xl font-bold hover:bg-slate-50 transition-colors disabled:opacity-60"
+          >
+            {savingPin ? 'กำลังบันทึก...' : hasPin ? 'เปลี่ยน PIN' : 'ตั้ง PIN'}
+          </button>
         </div>
       </div>
 

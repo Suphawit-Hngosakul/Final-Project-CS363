@@ -8,6 +8,7 @@ const restaurantSchema = new mongoose.Schema({
   openingHours: { type: Object, default: {} },
   promptPayQR: { type: String, default: '' },
   tableCount: { type: Number, default: 0 },
+  kioskPin: { type: String, default: '' }, // bcrypt hash ของ PIN สำหรับปลดล็อก
 }, { timestamps: true })
 
 export default mongoose.model('Restaurant', restaurantSchema)

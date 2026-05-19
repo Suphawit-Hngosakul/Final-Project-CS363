@@ -57,9 +57,9 @@ export default function App() {
           path="/select-table" 
           element={<SelectTablePage user={user} onLogout={handleLogout} token={token} />} 
         />
-        <Route 
-          path="/order/:tableId" 
-          element={<CustomerOrderPage user={user} onLogout={handleLogout} />} 
+        <Route
+          path="/order/:tableId"
+          element={<CustomerOrderPage user={user} onLogout={handleLogout} token={token} />}
         />
         <Route 
           path="/*" 

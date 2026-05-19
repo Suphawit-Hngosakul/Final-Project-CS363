@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { imgSrc } from '../../utils/api';
 
 export default function CustomerMenuModal({ item, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
@@ -28,7 +29,7 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
         {/* Header Image (Optional, if item has image) */}
         <div className="bg-[#dcdfe4] h-48 w-full relative rounded-t-[18px]">
           {item.image && (
-            <img src={item.image.startsWith('http') ? item.image : `/uploads/${item.image}`} alt={item.name} className="w-full h-full object-cover rounded-t-[18px]" />
+            <img src={imgSrc(item.image)} alt={item.name} className="w-full h-full object-cover rounded-t-[18px]" />
           )}
           <button 
             onClick={onClose}

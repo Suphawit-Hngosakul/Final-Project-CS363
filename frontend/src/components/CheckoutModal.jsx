@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CheckoutBillCard from './CheckoutBillCard';
+import Select from './Select';
 
 export default function CheckoutModal({
     show,
@@ -65,38 +66,18 @@ export default function CheckoutModal({
                         <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
 
                             {/* Dropdown */}
-                            <div className="relative flex-1">
-                                <select
+                            <div className="flex-1">
+                                <Select
                                     value={pendingTable}
                                     onChange={(e) => setPendingTable(e.target.value)}
-                                    className="w-full appearance-none bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm outline-none focus:border-[#0B3D4A]"
-                                >
-                                    <option value="">เลือกโต๊ะ</option>
-
-                                    {tables.map((table) => (
-                                        <option
-                                            key={table._id || table.number}
-                                            value={table.number || table.tableNumber}
-                                        >
-                                            โต๊ะ {table.number || table.tableNumber} - {table.status}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#0B3D4A]">
-                                    <svg
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <polyline points="6 9 12 15 18 9"></polyline>
-                                    </svg>
-                                </div>
+                                    placeholder="เลือกโต๊ะ"
+                                    options={tables.map((table) => ({
+                                        value: table.tableNumber,
+                                        label: `โต๊ะ ${table.tableNumber} - ${table.status}`,
+                                    }))}
+                                    className="bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm focus:border-[#0B3D4A]"
+                                    chevronSize={16}
+                                />
                             </div>
 
                             {/* Checkout Button */}
@@ -153,31 +134,16 @@ export default function CheckoutModal({
                             วิธีชำระเงิน
                         </label>
 
-                        <div className="relative">
-                            <select
-                                value={paymentMethod}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                                className="w-full appearance-none bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm outline-none focus:border-[#0B3D4A]"
-                            >
-                                <option value="cash">เงินสด</option>
-                                <option value="promptpay">PromptPay / QR Code</option>
-                            </select>
-
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#0B3D4A]">
-                                <svg
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </div>
-                        </div>
+                        <Select
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            options={[
+                                { value: 'cash', label: 'เงินสด' },
+                                { value: 'promptpay', label: 'PromptPay / QR Code' },
+                            ]}
+                            className="bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm focus:border-[#0B3D4A]"
+                            chevronSize={16}
+                        />
                     </div>
 
                     {/* Footer Buttons */}

@@ -34,3 +34,15 @@ export const getMe = async (req, res, next) => {
     next(err)
   }
 }
+
+// POST /api/auth/verify-password
+export const verifyPassword = async (req, res, next) => {
+  try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
+    const result = await authService.verifyPassword(req.user.id, req.body.password)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
+}

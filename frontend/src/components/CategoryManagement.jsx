@@ -3,24 +3,18 @@ import CategoryCard from './CategoryCard';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
-export default function CategoryManagement({ categories: initialCategories = [], restaurantId, token, onCategoriesChange, onClose }) {
-    const [categories, setCategories] = useState(initialCategories);
+// categories ถูกถือไว้โดย parent (MenuManagementPage) — component นี้แก้ผ่าน onCategoriesChange เท่านั้น
+export default function CategoryManagement({ categories = [], restaurantId, token, onCategoriesChange, onClose }) {
     const [newName, setNewName] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [loading, setLoading] = useState(false);
-
-    const update = (updated) => {
-        setCategories(updated);
-        onCategoriesChange?.(updated);
-    };
 
     const handleAdd = async () => {
         if (!newName.trim()) return;
         setLoading(true);
         try {
             const created = await call('POST', `/api/restaurant/${restaurantId}/categories`, { name: newName.trim() }, token);
-            const updated = [...categories, created];
-            update(updated);
+            onCategoriesChange?.([...categories, created]);
             setNewName('');
             toast.success('เพิ่มหมวดหมู่สำเร็จ');
         } catch {
@@ -33,9 +27,8 @@ export default function CategoryManagement({ categories: initialCategories = [],
     const handleSave = async (id, name) => {
         setLoading(true);
         try {
-            const updated_cat = await call('PUT', `/api/categories/${id}`, { name }, token);
-            const updated = categories.map(c => c._id === id ? updated_cat : c);
-            update(updated);
+            const updatedCat = await call('PUT', `/api/categories/${id}`, { name }, token);
+            onCategoriesChange?.(categories.map(c => c._id === id ? updatedCat : c));
             setEditingId(null);
             toast.success('แก้ไขสำเร็จ');
         } catch {
@@ -50,8 +43,7 @@ export default function CategoryManagement({ categories: initialCategories = [],
         setLoading(true);
         try {
             await call('DELETE', `/api/categories/${id}`, null, token);
-            const updated = categories.filter(c => c._id !== id);
-            update(updated);
+            onCategoriesChange?.(categories.filter(c => c._id !== id));
             toast.success('ลบสำเร็จ');
         } catch {
             toast.error('ลบล้มเหลว');

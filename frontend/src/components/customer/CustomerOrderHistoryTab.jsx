@@ -1,22 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { call } from '../../utils/api';
+import { getSocket } from '../../utils/socket';
 import { toast } from 'react-hot-toast';
-
-const STATUS_LABEL = {
-  pending: 'รอรับออเดอร์',
-  accepted: 'รับออเดอร์แล้ว',
-  cooking: 'กำลังทำ',
-  ready: 'พร้อมเสิร์ฟ',
-  served: 'เสิร์ฟแล้ว',
-};
-
-const STATUS_COLOR = {
-  pending: 'bg-[#d69f3d]',
-  accepted: 'bg-[#3d8dd6]',
-  cooking: 'bg-[#d6633d]',
-  ready: 'bg-[#3dd67a]',
-  served: 'bg-[#888]',
-};
+import RefreshButton from '../RefreshButton';
+import { STATUS_LABEL, STATUS_COLOR } from '../../utils/orderStatus';
 
 export default function CustomerOrderHistoryTab({ tableId }) {
   const [orders, setOrders] = useState([]);
@@ -33,6 +20,32 @@ export default function CustomerOrderHistoryTab({ tableId }) {
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
+  // Realtime: ฟังเหตุการณ์ของโต๊ะนี้ — ไม่ต้องกด Refresh
+  useEffect(() => {
+    if (!tableId) return;
+    const socket = getSocket();
+    const joinRoom = () => socket.emit('join_table', tableId);
+
+    joinRoom();
+    socket.on('connect', joinRoom);
+
+    // staff เปลี่ยนสถานะ → patch order ตัวที่ตรงกัน
+    const onStatusUpdate = ({ orderId, status }) => {
+      setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
+    };
+    // โต๊ะจ่ายเงินแล้ว → session ใหม่ เคลียร์ประวัติ
+    const onBillPaid = () => setOrders([]);
+
+    socket.on('order_status_updated', onStatusUpdate);
+    socket.on('bill_paid', onBillPaid);
+
+    return () => {
+      socket.off('connect', joinRoom);
+      socket.off('order_status_updated', onStatusUpdate);
+      socket.off('bill_paid', onBillPaid);
+    };
+  }, [tableId]);
+
   const allItems = orders.flatMap(order =>
     order.items.map(item => ({ ...item, status: order.status }))
   );
@@ -44,17 +57,13 @@ export default function CustomerOrderHistoryTab({ tableId }) {
       {/* PC/Medium header */}
       <div className="hidden md:flex justify-between items-center mb-6 px-2">
         <h2 className="text-[26px] font-black text-[#0B3D4A]">รายการที่สั่งไป</h2>
-        <button onClick={fetchOrders} className="px-6 py-2 bg-white border border-[#48c7a6] rounded-[10px] text-[13px] font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors">
-          Refresh
-        </button>
+        <RefreshButton onClick={fetchOrders} />
       </div>
 
       {/* Mobile header */}
       <div className="md:hidden flex flex-col items-center gap-3 mb-6">
         <h2 className="text-2xl font-black text-[#0B3D4A]">รายการที่สั่งไป</h2>
-        <button onClick={fetchOrders} className="px-10 py-2 bg-white border border-[#48c7a6] rounded-[10px] text-[13px] font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors">
-          Refresh
-        </button>
+        <RefreshButton onClick={fetchOrders} />
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto pb-[100px]">

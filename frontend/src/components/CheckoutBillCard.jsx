@@ -1,12 +1,5 @@
 import React from 'react';
-
-const STATUS_STYLE = {
-    pending: 'bg-[#D9B24C] text-white',
-    accepted: 'bg-[#4B8BFF] text-white',
-    cooking: 'bg-[#F28C28] text-white',
-    ready: 'bg-[#38B26C] text-white',
-    served: 'bg-[#0B3D4A] text-white'
-};
+import { STATUS_COLOR } from '../utils/orderStatus';
 
 export default function CheckoutBillCard({ order }) {
     return (
@@ -30,7 +23,7 @@ export default function CheckoutBillCard({ order }) {
 
                         <div className="flex items-center gap-3">
                             <span
-                                className={`px-4 py-1 rounded-full text-[12px] font-bold ${STATUS_STYLE[order.status] || 'bg-slate-300 text-white'
+                                className={`px-4 py-1 rounded-full text-[12px] font-bold text-white ${STATUS_COLOR[order.status] || 'bg-slate-300'
                                     }`}
                             >
                                 {order.status}

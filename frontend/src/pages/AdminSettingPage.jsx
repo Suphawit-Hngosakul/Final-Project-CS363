@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import bgImage from '../components/BG.png';
 import TopNavBar from '../components/TopNavBar';
@@ -7,7 +7,10 @@ import MobileDrawer from '../components/MobileDrawer';
 import TableOrderBlock from '../components/TableOrderBlock';
 import RefreshButton from '../components/RefreshButton';
 import CheckoutModal from '../components/CheckoutModal';
+import Select from '../components/Select';
 import { call } from '../utils/api';
+import { getSocket } from '../utils/socket';
+import { NEXT_STATUS, ORDER_STATUSES } from '../utils/orderStatus';
 import { toast } from 'react-hot-toast';
 import MenuManagementPage from './MenuManagementPage';
 import RestaurantManagementPage from './RestaurantManagementPage';
@@ -19,6 +22,9 @@ const TABS = [
   { id: 'restaurant', label: 'จัดการร้านอาหาร' },
   { id: 'reports', label: 'รายงาน' }
 ];
+
+// ตัวเลือกกรองออเดอร์ = "ทั้งหมด" + สถานะทั้งหมด
+const FILTERS = ['ทั้งหมด', ...ORDER_STATUSES];
 
 export default function AdminSettingPage({ user, onLogout, token }) {
   const [activeTab, setActiveTab] = useState('orders_tables');
@@ -53,7 +59,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     }];
   });
 
-  const fetchTables = async () => {
+  const fetchTables = useCallback(async () => {
     if (!user?.restaurantId) return;
     try {
       const res = await call('GET', `/api/restaurant/${user.restaurantId}/tables`, null, token);
@@ -61,9 +67,9 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     } catch {
       toast.error('โหลดโต๊ะล้มเหลว');
     }
-  };
+  }, [user?.restaurantId, token]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user?.restaurantId) return;
     try {
       const res = await call('GET', `/api/restaurant/${user.restaurantId}/orders`, null, token);
@@ -71,14 +77,43 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     } catch {
       toast.error('โหลดออเดอร์ล้มเหลว');
     }
-  };
+  }, [user?.restaurantId, token]);
 
   useEffect(() => {
-    if (user?.restaurantId) {
+    if (!user?.restaurantId) return;
+    fetchTables();
+    fetchOrders();
+  }, [user?.restaurantId, fetchTables, fetchOrders]);
+
+  // Realtime: รับ event ใหม่จาก socket แทนต้องกด Refresh
+  useEffect(() => {
+    if (!user?.restaurantId) return;
+    const socket = getSocket();
+    const restaurantId = user.restaurantId;
+    const joinRoom = () => socket.emit('join_restaurant', restaurantId);
+
+    joinRoom();
+    socket.on('connect', joinRoom);
+
+    // มี order ใหม่ → โหลดทั้ง tables (session ใหม่) และ orders ใหม่
+    const onNewOrder = () => {
       fetchTables();
       fetchOrders();
-    }
-  }, [user?.restaurantId]);
+    };
+    // staff คนอื่นเปลี่ยนสถานะ → patch state local
+    const onStatusUpdate = ({ orderId, status }) => {
+      setRawOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
+    };
+
+    socket.on('new_order', onNewOrder);
+    socket.on('order_status_updated', onStatusUpdate);
+
+    return () => {
+      socket.off('connect', joinRoom);
+      socket.off('new_order', onNewOrder);
+      socket.off('order_status_updated', onStatusUpdate);
+    };
+  }, [user?.restaurantId, fetchTables, fetchOrders]);
   // เมื่อเลือกโต๊ะใน Modal
   const handleSelectTable = async (tableNum) => {
     setSelectedTable(tableNum);
@@ -118,8 +153,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     setCheckoutData(null);
     setSelectedTable('');
   };
-
-  const NEXT_STATUS = { pending: 'accepted', accepted: 'cooking', cooking: 'ready', ready: 'served' };
 
   const handleUpdateOrderStatus = async (flatId) => {
     const flat = flatOrders.find(o => o.id === flatId);
@@ -204,36 +237,18 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:max-w-sm">
 
                     {/* Select Table */}
-                    <div className="flex-1 relative">
-                      <select
+                    <div className="flex-1">
+                      <Select
                         value={selectedCheckoutTable}
                         onChange={(e) => setSelectedCheckoutTable(e.target.value)}
-                        className="w-full appearance-none bg-white border border-[#AEE1D3] rounded-xl px-4 py-2 text-sm font-bold text-[#0B3D4A] shadow-sm outline-none focus:border-[#0B3D4A]"
-                      >
-                        <option value="">เลือกโต๊ะ</option>
-
-                        {tables.map((table) => (
-                          <option key={table._id} value={table.tableNumber}>
-                            โต๊ะ {table.tableNumber} • {table.status === 'available' ? 'Available' : table.status === 'payment' ? 'Payment' : 'Occupied'}
-                          </option>
-                        ))}
-                      </select>
-
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-[#0B3D4A]"
-                        >
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </div>
+                        placeholder="เลือกโต๊ะ"
+                        options={tables.map((table) => ({
+                          value: table.tableNumber,
+                          label: `โต๊ะ ${table.tableNumber} • ${table.status === 'available' ? 'Available' : table.status === 'payment' ? 'Payment' : 'Occupied'}`,
+                        }))}
+                        className="bg-white border border-[#AEE1D3] rounded-xl px-4 py-2 text-sm font-bold text-[#0B3D4A] shadow-sm focus:border-[#0B3D4A]"
+                        chevronSize={12}
+                      />
                     </div>
 
                     {/* Checkout Button */}
@@ -266,28 +281,22 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                   {/* Mobile: dropdown */}
                   <div className="flex items-center gap-2 md:hidden">
                     <span className="text-xs text-[#0B3D4A] font-bold shrink-0">กรอง:</span>
-                    <div className="relative flex-1 max-w-[180px]">
-                      <select
+                    <div className="flex-1 max-w-[180px]">
+                      <Select
                         value={selectedFilter}
                         onChange={(e) => setSelectedFilter(e.target.value)}
-                        className="w-full appearance-none bg-[#0B3D4A] text-white rounded-full px-4 py-1.5 text-xs font-bold outline-none shadow-sm"
-                      >
-                        {['ทั้งหมด', 'pending', 'accepted', 'cooking', 'ready', 'served'].map(f => (
-                          <option key={f} value={f}>{f}</option>
-                        ))}
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </div>
+                        options={FILTERS.map(f => ({ value: f, label: f }))}
+                        className="bg-[#0B3D4A] text-white rounded-full px-4 py-1.5 text-xs font-bold shadow-sm"
+                        chevronSize={10}
+                        chevronColor="white"
+                      />
                     </div>
                   </div>
 
                   {/* Desktop: filter buttons */}
                   <div className="hidden md:flex flex-wrap items-center gap-2">
                     <span className="text-xs text-[#0B3D4A] font-bold mr-1">กรอง:</span>
-                    {['ทั้งหมด', 'pending', 'accepted', 'cooking', 'ready', 'served'].map(filter => (
+                    {FILTERS.map(filter => (
                       <button
                         key={filter}
                         onClick={() => setSelectedFilter(filter)}

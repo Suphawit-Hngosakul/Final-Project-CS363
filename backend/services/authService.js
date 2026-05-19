@@ -52,3 +52,14 @@ export const login = async ({ email, password }) => {
 }
 
 export const getMe = (userId) => userRepo.findById(userId)
+
+// ตรวจรหัสผ่านของบัญชีที่ login อยู่ — ไม่ออก token ใหม่
+export const verifyPassword = async (userId, password) => {
+  const user = await userRepo.findByIdWithPassword(userId)
+  if (!user) throw createError(401, 'Invalid password')
+
+  const isMatch = await user.comparePassword(password)
+  if (!isMatch) throw createError(401, 'Invalid password')
+
+  return { ok: true }
+}

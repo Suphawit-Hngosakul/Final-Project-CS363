@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
+import Select from './Select';
 
 export default function TableCard({ table, token }) {
   const navigate = useNavigate();
   const [status, setStatus] = useState(table?.status || 'available');
   const [updating, setUpdating] = useState(false);
+
+  // sync สถานะเมื่อ prop เปลี่ยน (เช่น parent โหลดข้อมูลโต๊ะใหม่)
+  useEffect(() => {
+    setStatus(table?.status || 'available');
+  }, [table?.status]);
 
   const handleStatusChange = async (newStatus) => {
     setUpdating(true);
@@ -33,25 +39,21 @@ export default function TableCard({ table, token }) {
         {table?.tableNumber || '1'}
       </span>
 
-      <div className="relative w-full mb-6">
-        <select
-          className={`w-full appearance-none border-none rounded-2xl px-4 py-3.5 text-[15px] font-medium shadow-sm outline-none cursor-pointer disabled:opacity-60 ${
+      <div className="w-full mb-6">
+        <Select
+          value={status}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          disabled={updating}
+          options={[
+            { value: 'available', label: 'Available' },
+            { value: 'occupied', label: 'Occupied' },
+          ]}
+          className={`border-none rounded-2xl px-4 py-3.5 text-[15px] font-medium shadow-sm cursor-pointer disabled:opacity-60 ${
             status === 'occupied'
               ? 'bg-slate-200 text-slate-600 focus:ring-2 focus:ring-slate-300'
               : 'bg-white text-slate-800 focus:ring-2 focus:ring-[#AEE1D3]'
           }`}
-          value={status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          disabled={updating}
-        >
-          <option value="available">Available</option>
-          <option value="occupied">Occupied</option>
-        </select>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0B3D4A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </div>
+        />
       </div>
 
       <button

@@ -36,13 +36,12 @@ export const updateOrderStatus = async (req, res, next) => {
       req.user.restaurantId
     )
 
-    // แจ้งเตือน customer แบบ realtime
+    // แจ้งเตือน customer + staff คนอื่น ๆ ในร้าน แบบ realtime
     const io = req.app.get('io')
     if (io) {
-      io.to(`table:${order.tableId}`).emit('order_status_updated', {
-        orderId: order._id,
-        status: order.status,
-      })
+      const payload = { orderId: order._id, status: order.status }
+      io.to(`table:${order.tableId}`).emit('order_status_updated', payload)
+      io.to(`restaurant:${order.restaurantId}`).emit('order_status_updated', payload)
     }
 
     res.json(order)

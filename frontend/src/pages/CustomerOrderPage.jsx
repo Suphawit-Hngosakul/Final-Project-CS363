@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import bgImage from '../components/BG.png';
 import CustomerMenuTab from '../components/customer/CustomerMenuTab';
@@ -8,14 +8,23 @@ import AdminTabBar from '../components/AdminTabBar';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
-export default function CustomerOrderPage({ user }) {
+export default function CustomerOrderPage({ user, token }) {
   const { tableId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('menu');
   const [cart, setCart] = useState([]);
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [pinInput, setPinInput] = useState('');
-  const ADMIN_PIN = '1234';
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [hasPin, setHasPin] = useState(false);
+
+  // เช็คว่าร้านตั้ง PIN ไว้หรือยัง — ถ้ายังจะ fallback ไปใช้รหัสผ่านบัญชี
+  useEffect(() => {
+    if (!user?.restaurantId || !token) return;
+    call('GET', `/api/restaurant/${user.restaurantId}`, null, token)
+      .then(res => setHasPin(!!res.hasPin))
+      .catch(() => {});
+  }, [user?.restaurantId, token]);
 
   const addToCart = (item) => {
     setCart([...cart, item]);
@@ -55,17 +64,27 @@ export default function CustomerOrderPage({ user }) {
 
   const handleBackToAdmin = () => {
     setShowDrawer(false);
-    setShowPinModal(true);
-    setPinInput('');
+    setShowPasswordModal(true);
+    setPasswordInput('');
   };
 
-  const confirmPin = () => {
-    if (pinInput === ADMIN_PIN) {
-      setShowPinModal(false);
+  const confirmPassword = async () => {
+    if (!passwordInput || verifying) return;
+    setVerifying(true);
+    try {
+      // มี PIN → ตรวจด้วย PIN ของร้าน, ยังไม่มี → fallback เป็นรหัสผ่านบัญชี
+      if (hasPin) {
+        await call('POST', `/api/restaurant/${user.restaurantId}/pin/verify`, { pin: passwordInput }, token);
+      } else {
+        await call('POST', '/api/auth/verify-password', { password: passwordInput }, token);
+      }
+      setShowPasswordModal(false);
       navigate('/select-table');
-    } else {
-      toast.error('PIN ไม่ถูกต้อง');
-      setPinInput('');
+    } catch {
+      toast.error(hasPin ? 'PIN ไม่ถูกต้อง' : 'รหัสผ่านไม่ถูกต้อง');
+      setPasswordInput('');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -173,33 +192,37 @@ export default function CustomerOrderPage({ user }) {
         </div>
       </main>
 
-      {/* PIN Modal */}
-      {showPinModal && (
+      {/* Admin Password Modal */}
+      {showPasswordModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-8 w-80 shadow-2xl flex flex-col items-center gap-4">
-            <h2 className="text-xl font-black text-[#0B3D4A]">ใส่ PIN เพื่อกลับหน้า Admin</h2>
+            <h2 className="text-xl font-black text-[#0B3D4A] text-center">
+              {hasPin ? 'ใส่ PIN เพื่อกลับหน้า Admin' : 'ใส่รหัสผ่าน Admin เพื่อกลับ'}
+            </h2>
             <input
               type="password"
-              value={pinInput}
-              onChange={e => setPinInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && confirmPin()}
-              maxLength={4}
-              placeholder="PIN 4 หลัก"
-              className="w-full border border-[#AEE1D3] rounded-xl px-4 py-3 text-center text-2xl font-black tracking-[0.5em] outline-none focus:border-[#0B3D4A]"
+              inputMode={hasPin ? 'numeric' : 'text'}
+              value={passwordInput}
+              onChange={e => setPasswordInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && confirmPassword()}
+              placeholder={hasPin ? 'PIN' : 'รหัสผ่าน'}
+              className="w-full border border-[#AEE1D3] rounded-xl px-4 py-3 text-center text-lg font-bold outline-none focus:border-[#0B3D4A]"
               autoFocus
             />
             <div className="flex gap-3 w-full">
               <button
-                onClick={() => setShowPinModal(false)}
-                className="flex-1 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-50"
+                onClick={() => setShowPasswordModal(false)}
+                disabled={verifying}
+                className="flex-1 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
               >
                 ยกเลิก
               </button>
               <button
-                onClick={confirmPin}
-                className="flex-1 py-2 bg-[#0B3D4A] text-white rounded-xl font-bold hover:opacity-90"
+                onClick={confirmPassword}
+                disabled={verifying}
+                className="flex-1 py-2 bg-[#0B3D4A] text-white rounded-xl font-bold hover:opacity-90 disabled:opacity-60"
               >
-                ยืนยัน
+                {verifying ? 'กำลังตรวจสอบ...' : 'ยืนยัน'}
               </button>
             </div>
           </div>

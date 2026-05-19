@@ -3,8 +3,6 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import swaggerUi from 'swagger-ui-express'
 import connectDB from './config/db.js'
 import errorHandler from './middleware/errorHandler.js'
@@ -23,7 +21,6 @@ dotenv.config()
 
 const app = express()
 const httpServer = createServer(app)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []
 
@@ -32,7 +29,6 @@ app.use(cors({
   credentials: true,
 }))
 app.use(express.json())
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 // Socket.IO setup
 const io = new Server(httpServer, {

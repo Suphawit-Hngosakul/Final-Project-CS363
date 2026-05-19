@@ -75,7 +75,7 @@ export default function CategoryManagement({ categories: initialCategories = [],
                 <h2 className="text-3xl font-black text-[#0B3D4A]">จัดการหมวดหมู่</h2>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <input
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
@@ -83,7 +83,7 @@ export default function CategoryManagement({ categories: initialCategories = [],
                     placeholder="เพิ่มหมวดหมู่ใหม่"
                     className="flex-1 bg-white border border-[#AEE1D3] rounded-2xl px-4 py-3 outline-none focus:border-[#0B3D4A]"
                 />
-                <button onClick={handleAdd} disabled={loading} className="px-5 py-3 bg-[#0B3D4A] text-white rounded-2xl font-bold disabled:opacity-60">
+                <button onClick={handleAdd} disabled={loading} className="w-full sm:w-auto px-5 py-3 bg-[#0B3D4A] text-white rounded-2xl font-bold disabled:opacity-60">
                     เพิ่ม
                 </button>
             </div>

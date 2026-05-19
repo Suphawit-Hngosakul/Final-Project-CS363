@@ -199,7 +199,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                 className="w-full max-w-[720px] rounded-[18px] bg-[#F9FAFB] shadow-2xl animate-in fade-in duration-200 flex flex-col"
                 style={{ maxHeight: 'calc(100vh - 80px)' }}
             >
-                <div className="flex-1 overflow-y-auto px-6 pt-6 pr-5">
+                <div className="flex-1 overflow-y-auto px-4 pt-4 sm:px-6 sm:pt-6 sm:pr-5">
                     <h3 className="text-center text-2xl font-black text-[#0B3D4A] mb-6">{isEdit ? 'แก้ไขเมนู' : 'เพิ่มเมนู'}</h3>
 
                     <div className="grid grid-cols-1 gap-4">
@@ -256,7 +256,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
 
                         <div>
                             <label className="block text-[15px] font-black text-[#0B3D4A] mb-3">รูปภาพ (ไม่บังคับ)</label>
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                                 <input
                                     type="text"
                                     placeholder="URL หรือ ชื่อไฟล์"
@@ -268,7 +268,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                                 <button
                                     type="button"
                                     onClick={() => fileRef.current?.click()}
-                                    className="px-4 py-2 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50"
+                                    className="w-full sm:w-auto px-4 py-2 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50"
                                 >
                                     อัปโหลดไฟล์
                                 </button>
@@ -278,7 +278,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                     </div>
                 </div>
 
-                <div className="px-6 pb-6 pt-4 flex-shrink-0">
+                <div className="px-4 pb-4 pt-3 sm:px-6 sm:pb-6 sm:pt-4 flex-shrink-0">
                     <div className="border-t border-slate-200 pt-6 flex items-center justify-between" style={{ gap: 12 }}>
                         <button
                             onClick={onClose}

@@ -23,11 +23,11 @@ export default function TableCard({ table, token }) {
   const canOrder = status === 'available';
 
   return (
-    <div className="bg-[#F8FAF9] rounded-[32px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col items-center w-full max-w-[260px] mx-auto border border-white">
+    <div className="bg-[#F8FAF9] rounded-[32px] p-5 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col items-center w-full border border-white">
 
       <span className="text-2xl font-black text-[#0B3D4A] mb-2 tracking-wide">โต๊ะ</span>
 
-      <span className="text-[80px] leading-none font-black text-[#0B3D4A] mb-8">
+      <span className="text-[60px] md:text-[80px] leading-none font-black text-[#0B3D4A] mb-6 md:mb-8">
         {table?.tableNumber || '1'}
       </span>
 

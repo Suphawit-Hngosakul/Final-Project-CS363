@@ -10,7 +10,7 @@ export default function TableCard({ table }) {
       <span className="text-2xl font-black text-[#0B3D4A] mb-2 tracking-wide">โต๊ะ</span>
 
       <span className="text-[80px] leading-none font-black text-[#0B3D4A] mb-8">
-        {table?.number || '1'}
+        {table?.tableNumber || '1'}
       </span>
 
       <div className="relative w-full mb-6">
@@ -29,7 +29,7 @@ export default function TableCard({ table }) {
       </div>
 
       <button
-        onClick={() => navigate(`/order/${table?.id || '1'}`)}
+        onClick={() => navigate(`/order/${table?._id || '1'}`)}
         className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-[#F2F9F7] transition-colors"
       >
         เริ่มสั่งอาหาร

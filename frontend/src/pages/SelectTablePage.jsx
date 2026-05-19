@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import bgImage from '../components/BG.png';
 import TopNavBar from '../components/TopNavBar';
 import BackButton from '../components/BackButton';
 import TableCard from '../components/TableCard';
+import { call } from '../utils/api';
+import { toast } from 'react-hot-toast';
 
-export default function SelectTablePage({ user, onLogout }) {
-  // Mock tables
-  const tables = [
-    { id: 1, number: '1', capacity: 4, status: 'available' },
-    { id: 2, number: '2', capacity: 2, status: 'occupied' },
-    { id: 3, number: '3', capacity: 4, status: 'available' },
-    { id: 4, number: '4', capacity: 6, status: 'available' },
-    { id: 5, number: '5', capacity: 4, status: 'available' },
-    { id: 6, number: '6', capacity: 8, status: 'occupied' },
-  ];
+export default function SelectTablePage({ user, onLogout, token }) {
+  const [tables, setTables] = useState([]);
+
+  useEffect(() => {
+    if (!user?.restaurantId) return;
+    call('GET', `/api/restaurant/${user.restaurantId}/tables`, null, token)
+      .then(res => setTables(res || []))
+      .catch(() => toast.error('โหลดโต๊ะล้มเหลว'));
+  }, [user?.restaurantId]);
 
   return (
     <div
@@ -34,7 +35,7 @@ export default function SelectTablePage({ user, onLogout }) {
           {/* Tables Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {tables.map(table => (
-              <TableCard key={table.id} table={table} />
+              <TableCard key={table._id} table={table} />
             ))}
           </div>
 

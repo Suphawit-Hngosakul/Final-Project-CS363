@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function CustomerCartTab({ cart, onRemove, onSubmit }) {
+export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSubmit }) {
   if (cart.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center h-full min-h-[400px]">
@@ -9,8 +9,7 @@ export default function CustomerCartTab({ cart, onRemove, onSubmit }) {
     );
   }
 
-  // mock calculation
-  const total = cart.reduce((sum, item) => sum + (item.price === 'NA' ? 199 : Number(item.price)) * item.quantity, 0);
+  const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
 
   return (
     <div className="flex flex-col h-full relative pt-4">
@@ -18,16 +17,16 @@ export default function CustomerCartTab({ cart, onRemove, onSubmit }) {
         {cart.map((item, idx) => (
           <div key={idx} className="bg-white rounded-[20px] p-6 flex justify-between items-center shadow-sm border border-slate-100">
             <div>
-              <h3 className="font-black text-[#0B3D4A] text-lg mb-0.5">{item.name.replace(/\d/g, '').trim() || 'ชื่อเมนู 1'}</h3>
-              <p className="text-[13px] text-slate-500 mb-3">{item.option || 'Options 1'}</p>
-              <p className="text-[15px] font-bold text-slate-700">฿{item.price === 'NA' ? '199' : item.price} x{item.quantity}</p>
+              <h3 className="font-black text-[#0B3D4A] text-lg mb-0.5">{item.name}</h3>
+              {item.option && <p className="text-[13px] text-slate-500 mb-3">{item.option}</p>}
+              <p className="text-[15px] font-bold text-slate-700">฿{item.price} x{item.quantity}</p>
             </div>
-            
+
             <div className="flex flex-col items-end gap-3">
               <div className="flex items-center gap-3 bg-[#e2e8f0] rounded-full px-1.5 py-0.5">
-                <button className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">-</button>
+                <button onClick={() => onUpdateQuantity(idx, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">-</button>
                 <span className="w-4 text-center text-xs font-bold text-slate-700">{item.quantity}</span>
-                <button className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">+</button>
+                <button onClick={() => onUpdateQuantity(idx, +1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">+</button>
               </div>
               <button 
                 onClick={() => onRemove(idx)}

@@ -21,14 +21,19 @@ export default function OrderItemCard({ order, onAccept }) {
 
       {/* Mobile layout */}
       <div className="flex flex-col gap-1.5 md:hidden">
-        <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
-        <h5 className="font-black text-[#0B3D4A]">{order.name}</h5>
-        <p className="text-[10px] text-slate-500">Option: {order.option}</p>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-[#0B3D4A]">x{order.quantity}</span>
+        <div className="flex items-center gap-2 mb-1">
+          <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
           <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}>
             {order.status}
           </span>
+        </div>
+        <div className="space-y-1">
+          {order.items?.map((item, idx) => (
+            <div key={idx}>
+              <p className="font-black text-[#0B3D4A] text-sm">{item.name} × {item.quantity}</p>
+              <p className="text-[10px] text-slate-500">Option: {item.option}</p>
+            </div>
+          ))}
         </div>
         {order.status !== 'served' && (
           <button
@@ -42,21 +47,24 @@ export default function OrderItemCard({ order, onAccept }) {
       </div>
 
       {/* Desktop layout */}
-      <div className="hidden md:flex items-center justify-between">
-        {/* Left */}
-        <div>
-          <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
-          <div className="flex items-center gap-3 mt-1 mb-2">
+      <div className="hidden md:flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
             <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}>
               {order.status}
             </span>
           </div>
-          <h5 className="font-black text-[#0B3D4A]">{order.name} × {order.quantity}</h5>
-          <p className="text-[10px] text-slate-500 mb-2">Option: {order.option}</p>
+          <div className="space-y-1">
+            {order.items?.map((item, idx) => (
+              <div key={idx}>
+                <p className="font-black text-[#0B3D4A] text-sm">{item.name} × {item.quantity}</p>
+                <p className="text-[10px] text-slate-500">Option: {item.option}</p>
+              </div>
+            ))}
+          </div>
         </div>
-
-        {/* Right */}
-        <div className="flex flex-col items-end gap-1 md:flex-row md:items-center md:gap-4">
+        <div className="flex flex-col items-end gap-2 shrink-0">
           <span className="text-xs font-semibold text-slate-500">{order.time}</span>
           {order.status !== 'served' && (
             <button

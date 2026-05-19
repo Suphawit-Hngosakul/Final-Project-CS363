@@ -41,12 +41,18 @@ export default function CustomerOrderHistoryTab({ tableId }) {
 
   return (
     <div className="flex flex-col h-full relative pt-4">
-      <div className="flex justify-between items-center mb-6 px-2">
+      {/* PC/Medium header */}
+      <div className="hidden md:flex justify-between items-center mb-6 px-2">
         <h2 className="text-[26px] font-black text-[#0B3D4A]">รายการที่สั่งไป</h2>
-        <button
-          onClick={fetchOrders}
-          className="px-6 py-2 bg-white border border-[#48c7a6] rounded-[10px] text-[13px] font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors"
-        >
+        <button onClick={fetchOrders} className="px-6 py-2 bg-white border border-[#48c7a6] rounded-[10px] text-[13px] font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors">
+          Refresh
+        </button>
+      </div>
+
+      {/* Mobile header */}
+      <div className="md:hidden flex flex-col items-center gap-3 mb-6">
+        <h2 className="text-2xl font-black text-[#0B3D4A]">รายการที่สั่งไป</h2>
+        <button onClick={fetchOrders} className="px-10 py-2 bg-white border border-[#48c7a6] rounded-[10px] text-[13px] font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors">
           Refresh
         </button>
       </div>
@@ -59,6 +65,11 @@ export default function CustomerOrderHistoryTab({ tableId }) {
             <div key={idx} className="bg-white rounded-[20px] p-6 flex justify-between items-center shadow-sm border border-slate-100">
               <div>
                 <h3 className="font-black text-[#0B3D4A] text-[17px] mb-0.5">{item.name}</h3>
+                {item.options?.length > 0 && (
+                  <p className="text-[13px] text-slate-500 mb-1">
+                    {item.options.map(o => `${o.name}: ${o.choice}`).join(', ')}
+                  </p>
+                )}
                 {item.note && <p className="text-[13px] text-slate-500 mb-3">{item.note}</p>}
                 <span className={`px-4 py-1.5 ${STATUS_COLOR[item.status] || 'bg-[#d69f3d]'} text-white text-[10px] font-bold rounded-full uppercase tracking-wider`}>
                   {STATUS_LABEL[item.status] || item.status}
@@ -73,7 +84,7 @@ export default function CustomerOrderHistoryTab({ tableId }) {
       </div>
 
       {allItems.length > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 pt-6 flex justify-between items-center bg-[#f2f4f7] pb-2">
+        <div className="absolute bottom-0 left-0 right-0 pt-6 mt-16 flex justify-between items-center pb-2">
           <span className="text-2xl font-black text-[#0B3D4A] pl-2">ยอดรวม</span>
           <span className="text-[28px] font-black text-[#0B3D4A] pr-2">฿{total}</span>
         </div>

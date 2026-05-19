@@ -23,17 +23,23 @@ export default function TableCard({ table, token }) {
   const canOrder = status === 'available';
 
   return (
-    <div className="bg-[#F8FAF9] rounded-[32px] p-5 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col items-center w-full border border-white">
+    <div className={`rounded-[32px] p-5 md:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col items-center w-full border ${
+      status === 'occupied' ? 'bg-[#F0F0F0] border-slate-300' : 'bg-[#F8FAF9] border-white'
+    }`}>
 
-      <span className="text-2xl font-black text-[#0B3D4A] mb-2 tracking-wide">โต๊ะ</span>
+      <span className={`text-2xl font-black mb-2 tracking-wide ${status === 'occupied' ? 'text-slate-500' : 'text-[#0B3D4A]'}`}>โต๊ะ</span>
 
-      <span className="text-[60px] md:text-[80px] leading-none font-black text-[#0B3D4A] mb-6 md:mb-8">
+      <span className={`text-[60px] md:text-[80px] leading-none font-black mb-6 md:mb-8 ${status === 'occupied' ? 'text-slate-400' : 'text-[#0B3D4A]'}`}>
         {table?.tableNumber || '1'}
       </span>
 
       <div className="relative w-full mb-6">
         <select
-          className="w-full appearance-none bg-white border-none rounded-2xl px-4 py-3.5 text-[15px] font-medium text-slate-800 shadow-sm outline-none focus:ring-2 focus:ring-[#AEE1D3] cursor-pointer disabled:opacity-60"
+          className={`w-full appearance-none border-none rounded-2xl px-4 py-3.5 text-[15px] font-medium shadow-sm outline-none cursor-pointer disabled:opacity-60 ${
+            status === 'occupied'
+              ? 'bg-slate-200 text-slate-600 focus:ring-2 focus:ring-slate-300'
+              : 'bg-white text-slate-800 focus:ring-2 focus:ring-[#AEE1D3]'
+          }`}
           value={status}
           onChange={(e) => handleStatusChange(e.target.value)}
           disabled={updating}
@@ -54,7 +60,7 @@ export default function TableCard({ table, token }) {
         className={`px-6 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors border ${
           canOrder
             ? 'bg-white border-[#AEE1D3] text-[#0B3D4A] hover:bg-[#F2F9F7] cursor-pointer'
-            : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+            : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
         }`}
       >
         เริ่มสั่งอาหาร

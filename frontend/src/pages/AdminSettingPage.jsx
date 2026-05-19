@@ -36,17 +36,21 @@ export default function AdminSettingPage({ user, onLogout, token }) {
 
   // flatten API orders → รูปแบบที่ OrderItemCard ใช้
   const flatOrders = rawOrders.flatMap(order => {
-    const tableNum = tables.find(t => t._id === order.tableId?.toString() || t._id === order.tableId)?.tableNumber ?? '?';
-    return order.items.map((item, idx) => ({
-      id: `${order._id}_${idx}`,
+    const table = tables.find(t => t._id === order.tableId?.toString() || t._id === order.tableId);
+    if (!table?.currentSessionId) return [];
+    if (table.currentSessionId.toString() !== order.sessionId?.toString()) return [];
+    return [{
+      id: order._id,
       orderId: order._id,
-      tableNumber: tableNum,
-      name: item.name,
-      quantity: item.quantity,
-      option: item.options?.length > 0 ? item.options.map(o => `${o.name}: ${o.choice}`).join(', ') : '-',
+      tableNumber: table.tableNumber ?? '?',
+      items: order.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        option: item.options?.length > 0 ? item.options.map(o => `${o.name}: ${o.choice}`).join(', ') : '-',
+      })),
       status: order.status,
       time: new Date(order.createdAt).toLocaleString('th-TH'),
-    }));
+    }];
   });
 
   const fetchTables = async () => {

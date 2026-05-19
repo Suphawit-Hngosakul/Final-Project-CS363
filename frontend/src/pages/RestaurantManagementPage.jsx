@@ -188,7 +188,7 @@ export default function RestaurantManagementPage({ user, token }) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-3 bg-white border-2 border-[#0B7285] text-[#0B3D4A] rounded-2xl font-black shadow-sm hover:bg-slate-50 transition-all disabled:opacity-60"
+          className="px-6 py-2.5 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50 transition-all disabled:opacity-60"
         >
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>

@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { call } from '../utils/api';
+import bgImage from '../components/BG.png';
 
 const Inp = ({ label, className = '', ...p }) => (
-  <div className={`space-y-1 ${className}`}>
-    {label && <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</label>}
-    <input 
-      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500/60 focus:bg-white/8 transition-all" 
-      {...p} 
+  <div className={`space-y-1.5 ${className}`}>
+    {label && <label className="block text-[10px] font-bold text-[#134455] uppercase tracking-widest ml-1">{label}</label>}
+    <input
+      className="w-full bg-white border border-transparent rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#134455]/20 focus:border-transparent transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+      {...p}
     />
   </div>
 );
 
 const Btn = ({ children, variant = 'primary', size = 'md', className = '', ...p }) => {
-  const v = { 
-    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white', 
-    danger: 'bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/20', 
-    ghost: 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10', 
-    success: 'bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/20', 
-    warning: 'bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 border border-yellow-500/20' 
+  const v = {
+    primary: 'bg-white hover:bg-slate-50 text-[#134455] border border-[#48c7a6] shadow-sm',
+    danger: 'bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/20',
+    ghost: 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10',
+    success: 'bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/20',
+    warning: 'bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 border border-yellow-500/20'
   };
-  const s = { 
-    sm: 'px-2.5 py-1 text-[11px]', 
-    md: 'px-3.5 py-1.5 text-xs', 
-    lg: 'px-5 py-2.5 text-sm' 
+  const s = {
+    sm: 'px-2.5 py-1 text-[11px]',
+    md: 'px-3.5 py-1.5 text-xs',
+    lg: 'px-5 py-2.5 text-sm'
   };
   return (
-    <button className={`rounded-lg font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${v[variant]} ${s[size]} ${className}`} {...p}>
+    <button className={`rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${v[variant]} ${s[size]} ${className}`} {...p}>
       {children}
     </button>
   );
@@ -36,7 +37,7 @@ export default function AuthScreen({ onLogin }) {
   const [tab, setTab] = useState('login');
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ restaurantName: '', name: '', email: '', password: '' });
-  
+
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const submit = async e => {
@@ -56,39 +57,41 @@ export default function AuthScreen({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px]" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#eff2f9]">
+      {/* Background Image */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img src={bgImage} alt="Background" className="w-full h-full object-cover" />
       </div>
-      <div className="relative w-full max-w-sm">
+
+      <div className="relative w-full max-w-[400px] z-10">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">🍽️</div>
-          <h1 className="text-2xl font-black text-white">EzyOrder</h1>
-          <p className="text-slate-500 text-sm mt-1">Backend Test Dashboard</p>
+          <h1 className="text-[32px] font-black text-[#0c313f] tracking-tight">EzyOrder</h1>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-xl shadow-2xl">
+        <div className="bg-white/50 border border-white/70 rounded-[28px] p-8 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
           {/* Tab */}
-          <div className="flex gap-1 bg-white/5 rounded-xl p-1 mb-6">
+          <div className="flex gap-1 bg-white/40 rounded-2xl p-1 mb-8 border border-white/50 shadow-sm">
             {['login', 'register'].map(t => (
               <button key={t} onClick={() => setTab(t)}
-                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${tab === t ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                className={`flex-1 py-2.5 rounded-[14px] text-sm font-bold transition-all duration-300 ${tab === t ? 'bg-[#0f3a46] text-white shadow-md' : 'text-[#0f3a46]/70 hover:text-[#0f3a46] hover:bg-white/40'}`}>
                 {t === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
               </button>
             ))}
           </div>
-          <form onSubmit={submit} className="space-y-3">
+          <form onSubmit={submit} className="space-y-4">
             {tab === 'register' && (
               <>
-                <Inp label="ชื่อร้านอาหาร" placeholder="ร้านอาหารของฉัน" value={form.restaurantName} onChange={set('restaurantName')} required />
-                <Inp label="ชื่อผู้ใช้" placeholder="สมชาย ใจดี" value={form.name} onChange={set('name')} required />
+                <Inp label="ชื่อร้านอาหาร" placeholder="" value={form.restaurantName} onChange={set('restaurantName')} required />
+                <Inp label="ชื่อผู้ใช้" placeholder="" value={form.name} onChange={set('name')} required />
               </>
             )}
-            <Inp label="Email" type="email" placeholder="email@example.com" value={form.email} onChange={set('email')} required />
-            <Inp label="Password" type="password" placeholder="••••••••" value={form.password} onChange={set('password')} required />
-            <Btn size="lg" className="w-full mt-2" disabled={loading}>
-              {loading ? 'กำลังดำเนินการ…' : tab === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
-            </Btn>
+            <Inp label="EMAIL" type="email" placeholder="" value={form.email} onChange={set('email')} required />
+            <Inp label="PASSWORD" type="password" placeholder="" value={form.password} onChange={set('password')} required />
+
+            <div className="pt-2">
+              <Btn size="lg" className="w-full flex justify-center items-center h-[46px]" disabled={loading}>
+                {loading ? 'กำลังดำเนินการ…' : tab === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'}
+              </Btn>
+            </div>
           </form>
         </div>
       </div>

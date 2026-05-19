@@ -35,7 +35,7 @@ export default function SelectTablePage({ user, onLogout, token }) {
           {/* Tables Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {tables.map(table => (
-              <TableCard key={table._id} table={table} />
+              <TableCard key={table._id} table={table} token={token} />
             ))}
           </div>
 

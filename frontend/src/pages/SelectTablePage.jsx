@@ -16,7 +16,7 @@ export default function SelectTablePage({ user, onLogout }) {
   ];
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed font-sans text-slate-800"
       style={{ backgroundImage: `url(${bgImage})`, backgroundColor: '#f0f4f8' }}
     >
@@ -24,10 +24,10 @@ export default function SelectTablePage({ user, onLogout }) {
 
       <main className="max-w-6xl mx-auto px-4 pb-8">
         <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-sm border border-white/40 p-8 min-h-[600px]">
-          
+
           {/* Header */}
           <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
-            <BackButton />
+            <BackButton to="/" />
             <h2 className="text-2xl font-black text-[#0B3D4A]">เลือกโต๊ะให้ลูกค้า</h2>
           </div>
 

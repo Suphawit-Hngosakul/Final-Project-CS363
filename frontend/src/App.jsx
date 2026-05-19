@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import AdminSettingPage from './pages/AdminSettingPage';
 import SelectTablePage from './pages/SelectTablePage';
 import AuthScreen from './pages/AuthScreen';
+import CustomerOrderPage from './pages/CustomerOrderPage';
 import { call } from './utils/api';
 
 export default function App() {
@@ -39,9 +40,9 @@ export default function App() {
       <>
         <AuthScreen onLogin={onLogin} />
         <Toaster 
-          position="bottom-center" 
+          position="top-right" 
           toastOptions={{ 
-            style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } 
+            style: { background: '#0B4251', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } 
           }} 
         />
       </>
@@ -57,14 +58,18 @@ export default function App() {
           element={<SelectTablePage user={user} onLogout={handleLogout} />} 
         />
         <Route 
+          path="/order/:tableId" 
+          element={<CustomerOrderPage user={user} onLogout={handleLogout} />} 
+        />
+        <Route 
           path="/*" 
-          element={<AdminSettingPage user={user} onLogout={handleLogout} />} 
+          element={<AdminSettingPage user={user} onLogout={handleLogout} token={token} />}
         />
       </Routes>
       <Toaster 
         position="top-right" 
         toastOptions={{ 
-          style: { background: '#1e293b', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } 
+          style: { background: '#0B4251', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } 
         }} 
       />
     </>

@@ -76,11 +76,11 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
           {/* Details */}
           <div className="mb-6">
             <label className="block text-[15px] font-black text-[#0B3D4A] mb-3">รายละเอียดเพิ่มเติม</label>
-            <input 
-              type="text"
+            <textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              className="w-full bg-white border border-[#E6EEF0] rounded-xl px-5 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm"
+              rows={3}
+              className="w-full bg-white border border-[#E6EEF0] rounded-xl px-5 py-3 text-[15px] outline-none focus:border-[#0B3D4A] shadow-sm resize-none"
               placeholder="เช่น ไม่ใส่ผัก, เผ็ดน้อย"
             />
           </div>

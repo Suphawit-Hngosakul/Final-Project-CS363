@@ -38,8 +38,8 @@ export default function CustomerMenuTab({ onAddToCart, user }) {
     fetchData();
   }, [user?.restaurantId]);
 
-  const handleAddToCart = (item, quantity, option) => {
-    onAddToCart({ ...item, quantity, option });
+  const handleAddToCart = (item, quantity, selectedOptions, note) => {
+    onAddToCart({ ...item, quantity, options: selectedOptions, note });
     setSelectedItem(null);
   };
 

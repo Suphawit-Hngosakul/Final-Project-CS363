@@ -4,10 +4,19 @@ import { createPortal } from 'react-dom';
 export default function CustomerMenuModal({ item, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
   const [details, setDetails] = useState('');
-  
-  // mock price calculation
-  const price = item.price === 'NA' ? 199 : Number(item.price);
-  const total = price * quantity;
+  const [selectedChoices, setSelectedChoices] = useState(() => {
+    const initial = {};
+    item.options?.forEach((opt, i) => {
+      if (opt.choices?.length > 0) initial[i] = 0;
+    });
+    return initial;
+  });
+
+  const extraPrice = (item.options || []).reduce((sum, opt, i) => {
+    const idx = selectedChoices[i];
+    return sum + (idx !== undefined ? (opt.choices[idx]?.extraPrice || 0) : 0);
+  }, 0);
+  const total = (Number(item.price) + extraPrice) * quantity;
 
   const modal = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
@@ -35,20 +44,34 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
           <p className="text-sm text-slate-500 mb-2">{item.description || 'ไม่มีคำอธิบาย'}</p>
           <p className="font-bold text-[#0B3D4A] mb-6">฿ {item.price}</p>
 
-          {/* Options Mock (If applicable) */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-[#0B3D4A]">Option</h3>
-              <span className="text-[10px] px-2 py-0.5 rounded-full border border-slate-300 text-slate-500">ต้องระบุ</span>
-            </div>
-            <label className="flex justify-between items-center py-2 border-b border-slate-200 cursor-pointer">
-              <div className="flex items-center gap-3">
-                <input type="radio" name="opt1" className="w-4 h-4 accent-[#0B3D4A]" defaultChecked />
-                <span className="text-sm text-slate-700">ปกติ</span>
+          {/* Options จริงจาก API */}
+          {(item.options || []).map((opt, optIdx) => (
+            <div key={optIdx} className="mb-6">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-[#0B3D4A]">{opt.name}</h3>
+                {opt.required && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full border border-slate-300 text-slate-500">ต้องระบุ</span>
+                )}
               </div>
-              <span className="text-sm text-slate-500">฿ 0</span>
-            </label>
-          </div>
+              {opt.choices.map((choice, choiceIdx) => (
+                <label key={choiceIdx} className="flex justify-between items-center py-2 border-b border-slate-200 cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name={`opt_${optIdx}`}
+                      className="w-4 h-4 accent-[#0B3D4A]"
+                      checked={selectedChoices[optIdx] === choiceIdx}
+                      onChange={() => setSelectedChoices(prev => ({ ...prev, [optIdx]: choiceIdx }))}
+                    />
+                    <span className="text-sm text-slate-700">{choice.name}</span>
+                  </div>
+                  <span className="text-sm text-slate-500">
+                    {choice.extraPrice > 0 ? `+฿${choice.extraPrice}` : '฿ 0'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          ))}
 
           {/* Details */}
           <div className="mb-6">
@@ -77,8 +100,16 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
                 className="w-8 h-8 flex items-center justify-center text-[#0B3D4A] hover:bg-slate-100 rounded-lg font-bold text-xl"
               >+</button>
             </div>
-            <button 
-              onClick={() => onAdd(item, quantity, details)}
+            <button
+              onClick={() => {
+                const selectedOptions = (item.options || []).map((opt, i) => {
+                  const idx = selectedChoices[i];
+                  if (idx === undefined) return null;
+                  const choice = opt.choices[idx];
+                  return { name: opt.name, choice: choice.name, extraPrice: choice.extraPrice || 0 };
+                }).filter(Boolean);
+                onAdd(item, quantity, selectedOptions, details);
+              }}
               className="flex-1 h-12 bg-[#0B3D4A] text-white rounded-xl font-black shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center"
             >
               เพิ่มลงตะกร้า — ฿{total}

@@ -11,16 +11,24 @@ export default function CheckoutModal({
     onConfirm
 }) {
     const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [pendingTable, setPendingTable] = useState('');
 
     useEffect(() => {
         if (!show) {
             setPaymentMethod('cash');
+            setPendingTable('');
+        } else {
+            setPendingTable(selectedTable || '');
         }
     }, [show]);
 
-    const totalAmount = useMemo(() => {
-        return checkoutData?.totalAmount || 0;
+    const servedOrders = useMemo(() => {
+        return checkoutData?.orders?.filter(o => o.status === 'served') ?? [];
     }, [checkoutData]);
+
+    const totalAmount = useMemo(() => {
+        return servedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    }, [servedOrders]);
 
     if (!show) return null;
 
@@ -49,8 +57,8 @@ export default function CheckoutModal({
                             {/* Dropdown */}
                             <div className="relative flex-1">
                                 <select
-                                    value={selectedTable}
-                                    onChange={(e) => onSelectTable(e.target.value)}
+                                    value={pendingTable}
+                                    onChange={(e) => setPendingTable(e.target.value)}
                                     className="w-full appearance-none bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm outline-none focus:border-[#0B3D4A]"
                                 >
                                     <option value="">เลือกโต๊ะ</option>
@@ -84,9 +92,7 @@ export default function CheckoutModal({
                             {/* Checkout Button */}
                             <button
                                 onClick={() => {
-                                    if (selectedTable) {
-                                        onSelectTable(selectedTable);
-                                    }
+                                    if (pendingTable) onSelectTable(pendingTable);
                                 }}
                                 className="px-6 py-3.5 bg-white border border-[#0B7285] rounded-2xl text-[#0B3D4A] font-black shadow-sm hover:bg-[#ECF8F5] transition-all whitespace-nowrap"
                             >
@@ -102,8 +108,8 @@ export default function CheckoutModal({
                         </h3>
 
                         <div className="space-y-4 max-h-[260px] overflow-y-auto pr-1">
-                            {checkoutData?.orders?.length > 0 ? (
-                                checkoutData.orders.map((order) => (
+                            {servedOrders.length > 0 ? (
+                                servedOrders.map((order) => (
                                     <CheckoutBillCard
                                         key={order._id}
                                         order={order}
@@ -111,7 +117,7 @@ export default function CheckoutModal({
                                 ))
                             ) : (
                                 <div className="bg-white rounded-[24px] border border-dashed border-[#C9D9D4] py-12 text-center text-[#6B7280] font-semibold">
-                                    ยังไม่มีรายการอาหาร
+                                    ยังไม่มีรายการที่เสิร์ฟแล้ว
                                 </div>
                             )}
                         </div>
@@ -175,8 +181,8 @@ export default function CheckoutModal({
 
                         <button
                             onClick={() => onConfirm(paymentMethod)}
-                            disabled={!selectedTable || !checkoutData}
-                            className={`flex-1 py-3.5 rounded-2xl font-black transition-all shadow-sm ${selectedTable && checkoutData
+                            disabled={!selectedTable || servedOrders.length === 0}
+                            className={`flex-1 py-3.5 rounded-2xl font-black transition-all shadow-sm ${selectedTable && servedOrders.length > 0
                                 ? 'bg-white border border-[#0B7285] text-[#0B3D4A] hover:bg-[#ECF8F5]'
                                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                 }`}

@@ -3,6 +3,124 @@ import { createPortal } from 'react-dom';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
+function OptionsBuilder({ options, onChange }) {
+    const addOpt = () => onChange([...options, { name: '', required: false, choices: [] }]);
+    const removeOpt = (i) => onChange(options.filter((_, idx) => idx !== i));
+    const setOpt = (i, field, val) => {
+        const next = [...options]; next[i] = { ...next[i], [field]: val }; onChange(next);
+    };
+    const addChoice = (i) => {
+        const next = [...options];
+        next[i] = { ...next[i], choices: [...next[i].choices, { name: '', extraPrice: 0 }] };
+        onChange(next);
+    };
+    const removeChoice = (oi, ci) => {
+        const next = [...options];
+        next[oi] = { ...next[oi], choices: next[oi].choices.filter((_, idx) => idx !== ci) };
+        onChange(next);
+    };
+    const setChoice = (oi, ci, field, val) => {
+        const next = [...options];
+        const choices = [...next[oi].choices];
+        choices[ci] = { ...choices[ci], [field]: val };
+        next[oi] = { ...next[oi], choices };
+        onChange(next);
+    };
+
+    return (
+        <div className="space-y-3">
+            <div className="flex items-center justify-between">
+                <label className="text-[15px] font-black text-[#0B3D4A]">ตัวเลือก (OPTIONS)</label>
+                <button
+                    type="button"
+                    onClick={addOpt}
+                    className="text-sm px-3 py-1 border border-[#AEE1D3] rounded-full text-[#0B3D4A] bg-white hover:bg-slate-50"
+                >
+                    + เพิ่ม Option
+                </button>
+            </div>
+
+            {options.length === 0 && (
+                <div className="bg-white border border-dashed border-[#AEE1D3] rounded-xl px-4 py-5 text-center text-sm text-slate-400">
+                    ยังไม่มีตัวเลือก — กด &quot;+ เพิ่ม Option&quot; เพื่อเพิ่ม เช่น ความเผ็ด, ขนาด
+                </div>
+            )}
+
+            {options.map((opt, i) => (
+                <div key={i} className="bg-white border border-[#E6EEF0] rounded-xl p-4 space-y-3 shadow-sm">
+                    {/* Option header */}
+                    <div className="flex items-center gap-2">
+                        <input
+                            className="flex-1 bg-[#F9FAFB] border border-[#E6EEF0] rounded-lg px-3 py-2 text-sm text-[#0B3D4A] outline-none focus:border-[#0B3D4A]"
+                            placeholder="ชื่อตัวเลือก เช่น ความเผ็ด, ขนาด"
+                            value={opt.name}
+                            onChange={e => setOpt(i, 'name', e.target.value)}
+                        />
+                        <label className="flex items-center gap-1.5 text-[12px] text-[#0B3D4A] cursor-pointer select-none shrink-0 bg-[#F0F4F8] rounded-lg px-2 py-2 border border-[#E6EEF0]">
+                            <input
+                                type="checkbox"
+                                checked={opt.required}
+                                onChange={e => setOpt(i, 'required', e.target.checked)}
+                                className="w-3 h-3 accent-[#0B3D4A]"
+                            />
+                            บังคับ
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => removeOpt(i)}
+                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-400 text-sm font-bold shrink-0 flex items-center justify-center border border-red-200"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    {/* Choices */}
+                    <div className="pl-3 border-l-2 border-[#AEE1D3] space-y-2">
+                        {opt.choices.length === 0 && (
+                            <p className="text-xs text-slate-400">ยังไม่มีตัวเลือกย่อย</p>
+                        )}
+                        {opt.choices.map((ch, j) => (
+                            <div key={j} className="flex items-center gap-2">
+                                <input
+                                    className="flex-1 bg-[#F9FAFB] border border-[#E6EEF0] rounded-lg px-3 py-1.5 text-sm text-[#0B3D4A] outline-none focus:border-[#0B3D4A]"
+                                    placeholder={`เช่น ${['ไม่เผ็ด', 'เผ็ดน้อย', 'เผ็ดมาก'][j] || 'ชื่อตัวเลือก'}`}
+                                    value={ch.name}
+                                    onChange={e => setChoice(i, j, 'name', e.target.value)}
+                                />
+                                <div className="flex items-center gap-1 bg-[#F9FAFB] border border-[#E6EEF0] rounded-lg px-2 py-1.5 shrink-0">
+                                    <span className="text-[11px] text-slate-400 font-bold">+฿</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        className="w-14 bg-transparent text-sm text-[#0B3D4A] outline-none text-right"
+                                        placeholder="0"
+                                        value={ch.extraPrice}
+                                        onChange={e => setChoice(i, j, 'extraPrice', Number(e.target.value))}
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeChoice(i, j)}
+                                    className="text-slate-400 hover:text-red-400 text-sm font-bold w-5 text-center shrink-0"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => addChoice(i)}
+                            className="text-[12px] text-[#0B7285] hover:text-[#0B3D4A] font-semibold"
+                        >
+                            + เพิ่มตัวเลือกย่อย
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 export default function MenuPopup({ show, onClose, type = 'add', menu = null, restaurantId, token, categories = [], onSave }) {
     const isEdit = type === 'edit';
     const fileRef = useRef(null);
@@ -11,6 +129,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
     const [price, setPrice] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [description, setDescription] = useState('');
+    const [options, setOptions] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileName, setImageFileName] = useState('');
     const [saving, setSaving] = useState(false);
@@ -18,7 +137,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
     useEffect(() => {
         if (!show) {
             setMenuName(''); setPrice(''); setCategoryId('');
-            setDescription(''); setImageFile(null); setImageFileName('');
+            setDescription(''); setOptions([]); setImageFile(null); setImageFileName('');
             return;
         }
         if (isEdit && menu) {
@@ -26,9 +145,11 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
             setPrice(menu.price ?? '');
             setCategoryId(menu.categoryId?._id || menu.categoryId || '');
             setDescription(menu.description || '');
+            setOptions(menu.options?.length ? JSON.parse(JSON.stringify(menu.options)) : []);
             setImageFileName(menu.image || '');
         } else {
             setCategoryId(categories[0]?._id || '');
+            setOptions([]);
         }
     }, [show, isEdit, menu]);
 
@@ -51,6 +172,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
             fd.append('price', price);
             fd.append('categoryId', categoryId);
             fd.append('description', description);
+            if (options.length) fd.append('options', JSON.stringify(options));
             if (imageFile) fd.append('image', imageFile);
 
             let result;
@@ -130,6 +252,8 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                             />
                         </div>
 
+                        <OptionsBuilder options={options} onChange={setOptions} />
+
                         <div>
                             <label className="block text-[15px] font-black text-[#0B3D4A] mb-3">รูปภาพ (ไม่บังคับ)</label>
                             <div className="flex items-center gap-4">
@@ -144,7 +268,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                                 <button
                                     type="button"
                                     onClick={() => fileRef.current?.click()}
-                                    className="px-4 py-2 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold shadow-sm"
+                                    className="px-4 py-2 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50"
                                 >
                                     อัปโหลดไฟล์
                                 </button>

@@ -80,27 +80,26 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       setCheckoutData(null);
       return;
     }
+    const table = tables.find(t => String(t.tableNumber) === String(tableNum));
+    if (!table) { toast.error('ไม่พบโต๊ะ'); return; }
     try {
-      const res = await call('GET', `/api/restaurant/${user?.restaurantId}/tables/${tableNum}/checkout`, null, token);
+      const res = await call('GET', `/api/tables/${table._id}/bill`, null, token);
       setCheckoutData(res);
     } catch (err) {
-      toast.error('โหลดข้อมูลยอดชำระล้มเหลว');
+      if (err?.response?.status === 404) {
+        setCheckoutData(null);
+      } else {
+        toast.error('โหลดข้อมูลยอดชำระล้มเหลว');
+      }
     }
   };
 
   const confirmCheckout = async (paymentMethod) => {
+    const table = tables.find(t => String(t.tableNumber) === String(selectedTable));
+    if (!table) return;
     try {
-      await call(
-        'POST',
-        `/api/restaurant/${user?.restaurantId}/tables/${selectedTable}/checkout`,
-        {
-          paymentMethod
-        },
-        token
-      );
-
+      await call('POST', `/api/tables/${table._id}/bill/checkout`, { paymentMethod }, token);
       toast.success(`ชำระเงินโต๊ะ ${selectedTable} สำเร็จ`);
-
       handleCloseModal();
       fetchTables();
     } catch (err) {

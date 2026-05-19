@@ -59,6 +59,11 @@ export default function CustomerOrderHistoryTab({ tableId }) {
             <div key={idx} className="bg-white rounded-[20px] p-6 flex justify-between items-center shadow-sm border border-slate-100">
               <div>
                 <h3 className="font-black text-[#0B3D4A] text-[17px] mb-0.5">{item.name}</h3>
+                {item.options?.length > 0 && (
+                  <p className="text-[13px] text-slate-500 mb-1">
+                    {item.options.map(o => `${o.name}: ${o.choice}`).join(', ')}
+                  </p>
+                )}
                 {item.note && <p className="text-[13px] text-slate-500 mb-3">{item.note}</p>}
                 <span className={`px-4 py-1.5 ${STATUS_COLOR[item.status] || 'bg-[#d69f3d]'} text-white text-[10px] font-bold rounded-full uppercase tracking-wider`}>
                   {STATUS_LABEL[item.status] || item.status}

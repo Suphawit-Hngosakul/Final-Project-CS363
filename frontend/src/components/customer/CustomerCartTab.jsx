@@ -18,7 +18,11 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
           <div key={idx} className="bg-white rounded-[20px] p-6 flex justify-between items-center shadow-sm border border-slate-100">
             <div>
               <h3 className="font-black text-[#0B3D4A] text-lg mb-0.5">{item.name}</h3>
-              {item.option && <p className="text-[13px] text-slate-500 mb-3">{item.option}</p>}
+              {item.options?.length > 0 && (
+                <p className="text-[13px] text-slate-500 mb-3">
+                  {item.options.map(o => `${o.name}: ${o.choice}`).join(', ')}
+                </p>
+              )}
               <p className="text-[15px] font-bold text-slate-700">฿{item.price} x{item.quantity}</p>
             </div>
 

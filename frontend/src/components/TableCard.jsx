@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function TableCard({ table }) {
+  const navigate = useNavigate();
+  
   return (
-    <div className="bg-[#F8FAF9] rounded-[32px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col items-center w-full max-w-[260px] mx-auto border border-white">
+    <div className="bg-[#F8FAF9] rounded-[32px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-shadow duration-300 flex flex-col items-center w-full max-w-[260px] mx-auto border border-white">
 
       <span className="text-2xl font-black text-[#0B3D4A] mb-2 tracking-wide">โต๊ะ</span>
 
@@ -26,7 +29,8 @@ export default function TableCard({ table }) {
       </div>
 
       <button
-        className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm"
+        onClick={() => navigate(`/order/${table?.id || '1'}`)}
+        className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-[#F2F9F7] transition-colors"
       >
         เริ่มสั่งอาหาร
       </button>

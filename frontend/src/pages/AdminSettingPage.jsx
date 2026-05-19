@@ -167,7 +167,10 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                 <div className="space-y-2">
                   <h3 className="text-sm font-black text-[#0B3D4A]">จัดการโต๊ะ:</h3>
                   <div className="flex gap-3">
-                    <button className="px-4 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm">
+                    <button 
+                      onClick={() => setActiveTab('restaurant')}
+                      className="px-4 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-colors"
+                    >
                       แก้ไขจำนวนโต๊ะ
                     </button>
                     <button

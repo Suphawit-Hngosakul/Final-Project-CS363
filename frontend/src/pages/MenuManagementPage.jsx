@@ -107,7 +107,7 @@ export default function MenuManagementPage({ user, token }) {
                 ) : menus.length === 0 ? (
                     <p className="text-sm text-slate-400">ยังไม่มีเมนู — กด "เพิ่ม" เพื่อเริ่มต้น</p>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
                         {menus.map((menu) => (
                             <MenuCard
                                 key={menu._id}

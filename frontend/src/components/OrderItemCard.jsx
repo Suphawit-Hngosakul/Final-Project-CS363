@@ -17,42 +17,32 @@ const BUTTON_LABEL = {
 
 export default function OrderItemCard({ order, onAccept }) {
   return (
-    <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm">
+    <div className="bg-white rounded-2xl p-4 flex items-start justify-between shadow-sm gap-4">
 
       {/* Left */}
-      <div>
-        {/* Table */}
-        <h5 className="font-black text-[#0B3D4A]">
-          โต๊ะ {order.tableNumber}
-        </h5>
-
-        {/* Status */}
-        <div className="flex items-center gap-3 mt-1 mb-2">
-          <span
-            className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}
-          >
+      <div className="flex-1 min-w-0">
+        {/* Table + Status */}
+        <div className="flex items-center gap-2 mb-2">
+          <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
+          <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[order.status]}`}>
             {order.status}
           </span>
         </div>
 
-        {/* Menu */}
-        <h5 className="font-black text-[#0B3D4A]">
-          {order.name} × {order.quantity}
-        </h5>
-
-        {/* Option */}
-        <p className="text-[10px] text-slate-500 mb-2">
-          Option: {order.option}
-        </p>
+        {/* Items */}
+        <div className="space-y-1">
+          {order.items?.map((item, idx) => (
+            <div key={idx}>
+              <p className="font-black text-[#0B3D4A] text-sm">{item.name} × {item.quantity}</p>
+              <p className="text-[10px] text-slate-500">Option: {item.option}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-4">
-        <span className="text-xs font-semibold text-slate-500">
-          {order.time}
-        </span>
-
-        {/* Action Button */}
+      <div className="flex flex-col items-end gap-2 shrink-0">
+        <span className="text-xs font-semibold text-slate-500">{order.time}</span>
         {order.status !== 'served' && (
           <button
             onClick={() => onAccept(order.id)}

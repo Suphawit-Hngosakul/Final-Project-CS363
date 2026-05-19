@@ -19,10 +19,16 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
       <div className="flex-1 space-y-4 overflow-y-auto pb-[160px]">
         {cart.map((item, idx) => (
           <div key={idx} className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-100">
+
             {/* PC/Medium layout */}
             <div className="hidden md:flex justify-between items-center">
               <div>
                 <h3 className="font-black text-[#0B3D4A] text-lg mb-0.5">{item.name}</h3>
+                {item.options?.length > 0 && (
+                  <p className="text-[13px] text-slate-500 mb-1">
+                    {item.options.map(o => `${o.name}: ${o.choice}`).join(', ')}
+                  </p>
+                )}
                 {item.note && <p className="text-[13px] text-slate-500 mb-3">{item.note}</p>}
                 <p className="text-[15px] font-bold text-slate-700">฿{item.price} x{item.quantity}</p>
               </div>
@@ -41,6 +47,11 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-black text-[#0B3D4A] text-lg mb-0.5">{item.name}</h3>
+                  {item.options?.length > 0 && (
+                    <p className="text-[13px] text-slate-500 mb-1">
+                      {item.options.map(o => `${o.name}: ${o.choice}`).join(', ')}
+                    </p>
+                  )}
                   {item.note && <p className="text-[13px] text-slate-500">{item.note}</p>}
                   <p className="text-[15px] font-bold text-slate-700">฿{item.price} &nbsp; x{item.quantity}</p>
                 </div>
@@ -52,6 +63,7 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
               </div>
               <button onClick={() => onRemove(idx)} className="w-full py-2.5 bg-white border border-[#48c7a6] text-[#cc4c4c] rounded-[10px] text-sm font-bold shadow-sm hover:bg-slate-50">ลบ</button>
             </div>
+
           </div>
         ))}
       </div>

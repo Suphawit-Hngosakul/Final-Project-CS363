@@ -49,6 +49,9 @@ export default function CustomerMenuTab({ onAddToCart, user }) {
 
   return (
     <div className="flex flex-col h-full pt-4">
+      {/* Title — แสดงเฉพาะ mobile */}
+      <h2 className="md:hidden text-2xl font-black text-[#0B3D4A] text-center mb-4">เมนู</h2>
+
       {/* Category Filter */}
       <div className="flex items-center gap-3 mb-8 flex-wrap">
         <span className="text-sm font-bold text-[#0B3D4A] mr-2">กรอง:</span>
@@ -73,10 +76,10 @@ export default function CustomerMenuTab({ onAddToCart, user }) {
           <p className="text-[#0B3D4A]/60 font-bold">กำลังโหลดข้อมูล...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-6 overflow-y-auto">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-6 overflow-y-auto">
           {filteredMenus.map((item) => (
             <div key={item._id} className="bg-white rounded-[20px] p-4 flex flex-col shadow-sm border border-slate-100 relative">
-              <div className="bg-[#dcdfe4] h-[140px] rounded-[14px] mb-4 w-full overflow-hidden">
+              <div className="bg-[#dcdfe4] h-[120px] md:h-[140px] rounded-[14px] mb-4 w-full overflow-hidden">
                 {item.image && (
                   <img src={item.image.startsWith('http') ? item.image : `/uploads/${item.image}`} alt={item.name} className="w-full h-full object-cover" />
                 )}

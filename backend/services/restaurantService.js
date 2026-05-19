@@ -1,11 +1,20 @@
+import bcrypt from 'bcryptjs'
 import createError from '../utils/createError.js'
 import * as restaurantRepo from '../repositories/restaurantRepository.js'
 import * as tableRepo from '../repositories/tableRepository.js'
 
+const PIN_REGEX = /^\d{4,6}$/
+
+// ตัด kioskPin (hash) ออกจาก response แล้วบอกแค่ว่าตั้ง PIN ไว้หรือยัง
+const toPublic = (doc) => {
+  const { kioskPin, ...rest } = doc.toObject()
+  return { ...rest, hasPin: !!kioskPin }
+}
+
 export const getRestaurant = async (id) => {
   const restaurant = await restaurantRepo.findById(id)
   if (!restaurant) throw createError(404, 'Restaurant not found')
-  return restaurant
+  return toPublic(restaurant)
 }
 
 export const updateRestaurant = async (id, data) => {
@@ -43,5 +52,30 @@ export const updateRestaurant = async (id, data) => {
     }
   }
 
-  return restaurantRepo.update(id, { name, logo, address, phone, openingHours, promptPayQR, tableCount })
+  const updated = await restaurantRepo.update(id, { name, logo, address, phone, openingHours, promptPayQR, tableCount })
+  return toPublic(updated)
+}
+
+// ตั้ง / เปลี่ยน PIN ปลดล็อก (เก็บแบบ bcrypt hash)
+export const setPin = async (id, pin) => {
+  if (!PIN_REGEX.test(String(pin))) throw createError(400, 'PIN must be 4-6 digits')
+
+  const restaurant = await restaurantRepo.findById(id)
+  if (!restaurant) throw createError(404, 'Restaurant not found')
+
+  const kioskPin = await bcrypt.hash(String(pin), 10)
+  const updated = await restaurantRepo.update(id, { kioskPin })
+  return toPublic(updated)
+}
+
+// ตรวจ PIN ปลดล็อก — ไม่คืน hash
+export const verifyPin = async (id, pin) => {
+  const restaurant = await restaurantRepo.findById(id)
+  if (!restaurant) throw createError(404, 'Restaurant not found')
+  if (!restaurant.kioskPin) throw createError(409, 'PIN has not been set')
+
+  const isMatch = await bcrypt.compare(String(pin), restaurant.kioskPin)
+  if (!isMatch) throw createError(401, 'Invalid PIN')
+
+  return { ok: true }
 }

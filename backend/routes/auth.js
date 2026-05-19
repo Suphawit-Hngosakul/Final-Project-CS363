@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
-import { register, login, getMe } from '../controllers/authController.js'
+import { register, login, getMe, verifyPassword } from '../controllers/authController.js'
 import auth from '../middleware/auth.js'
 
 const router = Router()
@@ -26,5 +26,12 @@ router.post(
 )
 
 router.get('/me', auth, getMe)
+
+router.post(
+  '/verify-password',
+  auth,
+  [body('password').notEmpty().withMessage('Password is required')],
+  verifyPassword
+)
 
 export default router

@@ -1,0 +1,68 @@
+import React from 'react';
+import { STATUS_COLOR, NEXT_STATUS_LABEL } from '../utils/orderStatus';
+
+export default function OrderItemCard({ order, onAccept }) {
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm">
+
+      {/* Mobile layout */}
+      <div className="flex flex-col gap-1.5 md:hidden">
+        <div className="flex items-center gap-2 mb-1">
+          <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
+          <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLOR[order.status]}`}>
+            {order.status}
+          </span>
+        </div>
+        <div className="space-y-1">
+          {order.items?.map((item, idx) => (
+            <div key={idx}>
+              <p className="font-black text-[#0B3D4A] text-sm">{item.name} × {item.quantity}</p>
+              <p className="text-[10px] text-slate-500">Option: {item.option}</p>
+            </div>
+          ))}
+        </div>
+        {order.status !== 'served' && (
+          <button
+            onClick={() => onAccept(order.id)}
+            className="w-full mt-1 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-all"
+          >
+            {NEXT_STATUS_LABEL[order.status]}
+          </button>
+        )}
+        <p className="text-xs font-semibold text-slate-500 text-right">{order.time}</p>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <h5 className="font-black text-[#0B3D4A]">โต๊ะ {order.tableNumber}</h5>
+            <span className={`text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLOR[order.status]}`}>
+              {order.status}
+            </span>
+          </div>
+          <div className="space-y-1">
+            {order.items?.map((item, idx) => (
+              <div key={idx}>
+                <p className="font-black text-[#0B3D4A] text-sm">{item.name} × {item.quantity}</p>
+                <p className="text-[10px] text-slate-500">Option: {item.option}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <span className="text-xs font-semibold text-slate-500">{order.time}</span>
+          {order.status !== 'served' && (
+            <button
+              onClick={() => onAccept(order.id)}
+              className="px-6 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50 transition-all"
+            >
+              {NEXT_STATUS_LABEL[order.status]}
+            </button>
+          )}
+        </div>
+      </div>
+
+    </div>
+  );
+}

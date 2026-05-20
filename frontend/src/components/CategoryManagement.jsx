@@ -45,8 +45,8 @@ export default function CategoryManagement({ categories = [], restaurantId, toke
             await call('DELETE', `/api/categories/${id}`, null, token);
             onCategoriesChange?.(categories.filter(c => c._id !== id));
             toast.success('ลบสำเร็จ');
-        } catch {
-            toast.error('ลบล้มเหลว');
+        } catch (err) {
+            toast.error('ไม่สามารถลบได้ มีเมนูอาหารอยู่ในหมวดหมู่นี้');
         } finally {
             setLoading(false);
         }

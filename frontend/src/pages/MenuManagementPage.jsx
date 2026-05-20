@@ -107,7 +107,7 @@ export default function MenuManagementPage({ user, token }) {
                 ) : menus.length === 0 ? (
                     <p className="text-sm text-slate-400">ยังไม่มีเมนู — กด "เพิ่ม" เพื่อเริ่มต้น</p>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                         {menus.map((menu) => (
                             <MenuCard
                                 key={menu._id}
@@ -139,6 +139,7 @@ export default function MenuManagementPage({ user, token }) {
                 restaurantId={restaurantId}
                 token={token}
                 categories={categories}
+                menus={menus}
                 onSave={handleSaveMenu}
                 onClose={() => setShowAddPopup(false)}
             />
@@ -150,6 +151,7 @@ export default function MenuManagementPage({ user, token }) {
                 restaurantId={restaurantId}
                 token={token}
                 categories={categories}
+                menus={menus}
                 onSave={handleSaveMenu}
                 onClose={() => {
                     setShowEditPopup(false);

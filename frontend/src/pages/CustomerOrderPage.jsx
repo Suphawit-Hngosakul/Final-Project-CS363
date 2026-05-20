@@ -12,11 +12,18 @@ export default function CustomerOrderPage({ user, token }) {
   const { tableId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('menu');
-  const [cart, setCart] = useState([]);
+  const cartKey = `cart_${tableId}`;
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(cartKey)) || []; } catch { return []; }
+  });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [hasPin, setHasPin] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  }, [cart, cartKey]);
 
   // เช็คว่าร้านตั้ง PIN ไว้หรือยัง — ถ้ายังจะ fallback ไปใช้รหัสผ่านบัญชี
   useEffect(() => {
@@ -54,9 +61,15 @@ export default function CustomerOrderPage({ user, token }) {
       await call('POST', `/api/tables/${tableId}/orders`, { items });
       toast.success('สั่งอาหารสำเร็จ');
       setCart([]);
+      localStorage.removeItem(cartKey);
       setActiveTab('history');
     } catch {
-      toast.error('สั่งอาหารไม่สำเร็จ กรุณาลองใหม่');
+      try {
+        const menus = await call('GET', `/api/restaurant/${user.restaurantId}/menu`, null, token);
+        const availableIds = new Set(menus.filter(m => m.isAvailable).map(m => m._id));
+        setCart(prev => prev.map(item => ({ ...item, unavailable: !availableIds.has(item._id) })));
+      } catch {}
+      toast.error('สั่งอาหารไม่สำเร็จ กรุณาตรวจสอบรายการในตะกร้า');
     }
   };
 

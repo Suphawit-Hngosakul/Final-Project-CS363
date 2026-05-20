@@ -12,15 +12,9 @@ export default function CheckoutModal({
     onConfirm
 }) {
     const [paymentMethod, setPaymentMethod] = useState('cash');
-    const [pendingTable, setPendingTable] = useState('');
 
     useEffect(() => {
-        if (!show) {
-            setPaymentMethod('cash');
-            setPendingTable('');
-        } else {
-            setPendingTable(selectedTable || '');
-        }
+        if (!show) setPaymentMethod('cash');
     }, [show]);
 
     const servedOrders = useMemo(() => {
@@ -63,33 +57,17 @@ export default function CheckoutModal({
                             เลือกโต๊ะ
                         </label>
 
-                        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-
-                            {/* Dropdown */}
-                            <div className="flex-1">
-                                <Select
-                                    value={pendingTable}
-                                    onChange={(e) => setPendingTable(e.target.value)}
-                                    placeholder="เลือกโต๊ะ"
-                                    options={tables.map((table) => ({
-                                        value: table.tableNumber,
-                                        label: `โต๊ะ ${table.tableNumber} - ${table.status}`,
-                                    }))}
-                                    className="bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm focus:border-[#0B3D4A]"
-                                    chevronSize={16}
-                                />
-                            </div>
-
-                            {/* Checkout Button */}
-                            <button
-                                onClick={() => {
-                                    if (pendingTable) onSelectTable(pendingTable);
-                                }}
-                                className="w-full sm:w-auto px-6 py-3.5 bg-white border border-[#0B7285] rounded-2xl text-[#0B3D4A] font-black shadow-sm hover:bg-[#ECF8F5] transition-all whitespace-nowrap"
-                            >
-                                Checkout
-                            </button>
-                        </div>
+                        <Select
+                            value={selectedTable}
+                            onChange={(e) => onSelectTable(e.target.value)}
+                            placeholder="เลือกโต๊ะ"
+                            options={tables.map((table) => ({
+                                value: table.tableNumber,
+                                label: `โต๊ะ ${table.tableNumber} - ${table.status}`,
+                            }))}
+                            className="bg-white border border-[#A7D8CC] rounded-2xl px-5 py-3.5 text-[15px] text-[#222] shadow-sm focus:border-[#0B3D4A]"
+                            chevronSize={16}
+                        />
                     </div>
 
                     {/* รายการอาหาร */}

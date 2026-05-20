@@ -249,7 +249,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
     if (!show) return null;
 
     const modal = (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
             <div
                 className="w-full max-w-[720px] rounded-[18px] bg-[#F9FAFB] shadow-2xl animate-in fade-in duration-200 flex flex-col"
                 style={{ maxHeight: 'calc(100vh - 80px)' }}

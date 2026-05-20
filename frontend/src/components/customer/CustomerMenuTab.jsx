@@ -1,43 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CustomerMenuModal from './CustomerMenuModal';
 import CustomerMenuCard from './CustomerMenuCard';
+import RefreshButton from '../RefreshButton';
 import { call } from '../../utils/api';
 import toast from 'react-hot-toast';
 
 export default function CustomerMenuTab({ onAddToCart, user }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedItem, setSelectedItem] = useState(null);
-  
+
   const [categories, setCategories] = useState([{ _id: 'all', name: 'เมนูทั้งหมด' }]);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user?.restaurantId) return;
-      try {
-        setLoading(true);
-        const [cats, menus] = await Promise.all([
-          call('GET', `/api/public/restaurant/${user.restaurantId}/categories`),
-          call('GET', `/api/public/restaurant/${user.restaurantId}/menu`)
-        ]);
-        
-        if (cats && Array.isArray(cats)) {
-          setCategories([{ _id: 'all', name: 'เมนูทั้งหมด' }, ...cats]);
-        }
-        
-        if (menus && Array.isArray(menus)) {
-          setMenuItems(menus);
-        }
-      } catch (err) {
-        toast.error('ไม่สามารถโหลดข้อมูลเมนูได้');
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    if (!user?.restaurantId) return;
+    try {
+      setLoading(true);
+      const [cats, menus] = await Promise.all([
+        call('GET', `/api/public/restaurant/${user.restaurantId}/categories`),
+        call('GET', `/api/public/restaurant/${user.restaurantId}/menu`)
+      ]);
+      if (cats && Array.isArray(cats)) {
+        setCategories([{ _id: 'all', name: 'เมนูทั้งหมด' }, ...cats]);
       }
-    };
-    
-    fetchData();
+      if (menus && Array.isArray(menus)) {
+        setMenuItems(menus);
+      }
+    } catch {
+      toast.error('ไม่สามารถโหลดข้อมูลเมนูได้');
+    } finally {
+      setLoading(false);
+    }
   }, [user?.restaurantId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleAddToCart = (item, quantity, selectedOptions, note) => {
     onAddToCart({ ...item, quantity, options: selectedOptions, note });
@@ -50,8 +47,17 @@ export default function CustomerMenuTab({ onAddToCart, user }) {
 
   return (
     <div className="flex flex-col h-full pt-4">
-      {/* Title — แสดงเฉพาะ mobile */}
-      <h2 className="md:hidden text-2xl font-black text-[#0B3D4A] text-center mb-4">เมนู</h2>
+      {/* Desktop header */}
+      <div className="hidden md:flex justify-between items-center mb-6 px-2">
+        <h2 className="text-[26px] font-black text-[#0B3D4A]">เมนู</h2>
+        <RefreshButton onClick={fetchData} />
+      </div>
+
+      {/* Mobile header */}
+      <div className="md:hidden flex flex-col items-center gap-3 mb-4">
+        <h2 className="text-2xl font-black text-[#0B3D4A]">เมนู</h2>
+        <RefreshButton onClick={fetchData} />
+      </div>
 
       {/* Category Filter */}
       <div className="flex items-center gap-3 mb-8 flex-wrap">

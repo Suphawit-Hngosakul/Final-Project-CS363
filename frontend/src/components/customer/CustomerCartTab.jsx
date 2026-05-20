@@ -1,21 +1,31 @@
 import React from 'react';
+import RefreshButton from '../RefreshButton';
 
-export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSubmit }) {
-  if (cart.length === 0) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center h-full min-h-[400px]">
-        <h2 className="text-[28px] font-bold text-[#0B3D4A]/90">ตะกร้าว่าง</h2>
-      </div>
-    );
-  }
-
+export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSubmit, onRefresh }) {
   const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
   const hasUnavailable = cart.some(item => item.unavailable);
 
   return (
     <div className="flex flex-col h-full relative pt-4">
-      {/* Title — แสดงเฉพาะ mobile */}
-      <h2 className="md:hidden text-2xl font-black text-[#0B3D4A] text-center mb-4">ตะกร้า</h2>
+      {/* Desktop header */}
+      <div className="hidden md:flex justify-between items-center mb-6 px-2">
+        <h2 className="text-[26px] font-black text-[#0B3D4A]">ตะกร้า</h2>
+        {onRefresh && <RefreshButton onClick={onRefresh} />}
+      </div>
+
+      {/* Mobile header */}
+      <div className="md:hidden flex flex-col items-center gap-3 mb-4">
+        <h2 className="text-2xl font-black text-[#0B3D4A]">ตะกร้า</h2>
+        {onRefresh && <RefreshButton onClick={onRefresh} />}
+      </div>
+
+      {cart.length === 0 && (
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[300px]">
+          <h2 className="text-[28px] font-bold text-[#0B3D4A]/90">ตะกร้าว่าง</h2>
+        </div>
+      )}
+
+      {cart.length > 0 && (<>
 
       <div className="flex-1 space-y-4 overflow-y-auto pb-[160px]">
         {cart.map((item, idx) => (
@@ -90,6 +100,7 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
           สั่งอาหาร
         </button>
       </div>
+      </>)}
     </div>
   );
 }

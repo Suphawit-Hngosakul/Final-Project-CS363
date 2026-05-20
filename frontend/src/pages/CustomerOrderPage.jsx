@@ -49,6 +49,21 @@ export default function CustomerOrderPage({ user, token }) {
     }).filter(Boolean));
   };
 
+  const refreshCart = async () => {
+    if (!user?.restaurantId || cart.length === 0) return;
+    try {
+      const menus = await call('GET', `/api/public/restaurant/${user.restaurantId}/menu`);
+      if (menus) {
+        setCart(prev => prev.map(c => ({
+          ...c,
+          unavailable: !menus.find(m => m._id === c._id && m.isAvailable !== false)
+        })));
+      }
+    } catch {
+      toast.error('ไม่สามารถตรวจสอบข้อมูลได้');
+    }
+  };
+
   const submitOrder = async () => {
     if (cart.length === 0) return;
     try {
@@ -199,7 +214,7 @@ export default function CustomerOrderPage({ user, token }) {
           {/* Tab Content */}
           <div className="flex-1 flex flex-col relative h-full p-6">
             {activeTab === 'menu' && <CustomerMenuTab onAddToCart={addToCart} user={user} />}
-            {activeTab === 'cart' && <CustomerCartTab cart={cart} onRemove={removeFromCart} onUpdateQuantity={updateCartQuantity} onSubmit={submitOrder} />}
+            {activeTab === 'cart' && <CustomerCartTab cart={cart} onRemove={removeFromCart} onUpdateQuantity={updateCartQuantity} onSubmit={submitOrder} onRefresh={refreshCart} />}
             {activeTab === 'history' && <CustomerOrderHistoryTab tableId={tableId} />}
           </div>
         </div>

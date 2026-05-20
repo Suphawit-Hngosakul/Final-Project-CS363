@@ -33,19 +33,19 @@ export default function MenuCard({ menu, onEdit, onDelete, onToggleSale }) {
                 <div className="mt-auto flex justify-between gap-2">
                     <button
                         onClick={onToggleSale}
-                        className="flex-1 py-1.5 px-1 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold text-[11px] shadow-sm hover:bg-slate-50 transition-colors"
+                        className="flex-1 py-1.5 px-1 bg-white border border-[#48c7a6] rounded-lg text-[#0B3D4A] font-bold text-[11px] shadow-sm hover:bg-slate-50 transition-colors"
                     >
                         {available ? 'ปิดการขาย' : 'เปิดการขาย'}
                     </button>
                     <button
                         onClick={onEdit}
-                        className="flex-1 py-1.5 px-1 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold text-[11px] shadow-sm hover:bg-slate-50 transition-colors"
+                        className="flex-1 py-1.5 px-1 bg-white border border-[#48c7a6] rounded-lg text-[#0B3D4A] font-bold text-[11px] shadow-sm hover:bg-slate-50 transition-colors"
                     >
                         แก้ไข
                     </button>
                     <button
                         onClick={onDelete}
-                        className="flex-1 py-1.5 px-1 bg-white border border-red-300 rounded-lg text-red-500 font-bold text-[11px] shadow-sm hover:bg-red-50 transition-colors"
+                        className="py-1.5 px-3 bg-white border border-red-400 rounded-lg text-red-500 font-bold text-[11px] shadow-sm hover:bg-red-50 transition-colors"
                     >
                         ลบ
                     </button>

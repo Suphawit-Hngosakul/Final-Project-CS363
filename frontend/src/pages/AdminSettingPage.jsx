@@ -152,6 +152,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     setShowCheckoutModal(false);
     setCheckoutData(null);
     setSelectedTable('');
+    setSelectedCheckoutTable('');
   };
 
   const handleUpdateOrderStatus = async (flatId) => {

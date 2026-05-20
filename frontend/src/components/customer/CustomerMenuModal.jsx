@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { imgSrc } from '../../utils/api';
+import { toast } from 'react-hot-toast';
 
 export default function CustomerMenuModal({ item, onClose, onAdd }) {
   const [quantity, setQuantity] = useState(1);
@@ -8,7 +9,7 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
   const [selectedChoices, setSelectedChoices] = useState(() => {
     const initial = {};
     item.options?.forEach((opt, i) => {
-      if (opt.choices?.length > 0) initial[i] = 0;
+      if (opt.required && opt.choices?.length > 0) initial[i] = 0;
     });
     return initial;
   });
@@ -54,6 +55,20 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
                   <span className="text-[10px] px-2 py-0.5 rounded-full border border-slate-300 text-slate-500">ต้องระบุ</span>
                 )}
               </div>
+              {!opt.required && (
+                <label className="flex justify-between items-center py-2 border-b border-slate-200 cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name={`opt_${optIdx}`}
+                      className="w-4 h-4 accent-[#0B3D4A]"
+                      checked={selectedChoices[optIdx] === undefined}
+                      onChange={() => setSelectedChoices(prev => { const n = { ...prev }; delete n[optIdx]; return n; })}
+                    />
+                    <span className="text-sm text-slate-400 italic">ไม่เลือก</span>
+                  </div>
+                </label>
+              )}
               {opt.choices.map((choice, choiceIdx) => (
                 <label key={choiceIdx} className="flex justify-between items-center py-2 border-b border-slate-200 cursor-pointer">
                   <div className="flex items-center gap-3">
@@ -103,6 +118,8 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
             </div>
             <button
               onClick={() => {
+                const unfilled = (item.options || []).some((opt, i) => opt.required && selectedChoices[i] === undefined);
+                if (unfilled) { toast.error('กรุณาเลือกตัวเลือกที่บังคับ'); return; }
                 const selectedOptions = (item.options || []).map((opt, i) => {
                   const idx = selectedChoices[i];
                   if (idx === undefined) return null;

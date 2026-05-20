@@ -79,7 +79,7 @@ export default function CustomerOrderPage({ user, token }) {
         await call('POST', '/api/auth/verify-password', { password: passwordInput }, token);
       }
       setShowPasswordModal(false);
-      navigate('/select-table');
+      navigate('/');
     } catch {
       toast.error(hasPin ? 'PIN ไม่ถูกต้อง' : 'รหัสผ่านไม่ถูกต้อง');
       setPasswordInput('');

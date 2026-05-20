@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import bgImage from '../components/BG.png';
 import TopNavBar from '../components/TopNavBar';
 import AdminTabBar from '../components/AdminTabBar';
 import MobileDrawer from '../components/MobileDrawer';
 import TableOrderBlock from '../components/TableOrderBlock';
+import TableCard from '../components/TableCard';
 import RefreshButton from '../components/RefreshButton';
 import CheckoutModal from '../components/CheckoutModal';
 import Select from '../components/Select';
@@ -29,7 +29,7 @@ const FILTERS = ['ทั้งหมด', ...ORDER_STATUSES];
 export default function AdminSettingPage({ user, onLogout, token }) {
   const [activeTab, setActiveTab] = useState('orders_tables');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const navigate = useNavigate();
+  const [showTableSelect, setShowTableSelect] = useState(false);
 
   // --- State ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -200,12 +200,34 @@ export default function AdminSettingPage({ user, onLogout, token }) {
           <AdminTabBar
             tabs={TABS}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={(tab) => { setActiveTab(tab); setShowTableSelect(false); }}
           />
 
           {/* Content Area */}
           <div className="p-4 md:p-8 flex-1">
-            {activeTab === 'orders_tables' && (
+            {activeTab === 'orders_tables' && showTableSelect && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setShowTableSelect(false)}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50"
+                    >
+                      ← ย้อนกลับ
+                    </button>
+                    <h2 className="text-2xl font-black text-[#0B3D4A]">เลือกโต๊ะให้ลูกค้า</h2>
+                  </div>
+                  <RefreshButton onClick={fetchTables} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {tables.map(table => (
+                    <TableCard key={table._id} table={table} token={token} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'orders_tables' && !showTableSelect && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-black text-[#0B3D4A]">ออเดอร์และโต๊ะ</h2>
@@ -223,7 +245,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                       แก้ไขจำนวนโต๊ะ
                     </button>
                     <button
-                      onClick={() => navigate('/select-table')}
+                      onClick={() => setShowTableSelect(true)}
                       className="px-4 py-2 bg-[#E6F7F1] border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-[#D4F0E6]"
                     >
                       เลือกโต๊ะให้ลูกค้า

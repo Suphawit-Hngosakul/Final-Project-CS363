@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import AdminSettingPage from './pages/AdminSettingPage';
-import SelectTablePage from './pages/SelectTablePage';
 import AuthScreen from './pages/AuthScreen';
 import CustomerOrderPage from './pages/CustomerOrderPage';
 import { call } from './utils/api';
@@ -53,11 +52,7 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route 
-          path="/select-table" 
-          element={<SelectTablePage user={user} onLogout={handleLogout} token={token} />} 
-        />
-        <Route
+<Route
           path="/order/:tableId"
           element={<CustomerOrderPage user={user} onLogout={handleLogout} token={token} />}
         />

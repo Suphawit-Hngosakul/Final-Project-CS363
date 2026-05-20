@@ -107,6 +107,9 @@ export default function RestaurantManagementPage({ user, token }) {
   };
 
   const handleSave = async () => {
+    if (!name.trim()) { toast.error('กรุณากรอกชื่อร้าน'); return; }
+    if (!address.trim()) { toast.error('กรุณากรอกที่อยู่'); return; }
+    if (!phone.trim()) { toast.error('กรุณากรอกเบอร์โทร'); return; }
     setSaving(true);
     try {
       await call(

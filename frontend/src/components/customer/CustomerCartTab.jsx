@@ -10,6 +10,7 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
   }
 
   const total = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+  const hasUnavailable = cart.some(item => item.unavailable);
 
   return (
     <div className="flex flex-col h-full relative pt-4">
@@ -18,7 +19,7 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
 
       <div className="flex-1 space-y-4 overflow-y-auto pb-[160px]">
         {cart.map((item, idx) => (
-          <div key={idx} className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-100">
+          <div key={idx} className={`bg-white rounded-[20px] p-6 shadow-sm border ${item.unavailable ? 'border-red-300 bg-red-50/30' : 'border-slate-100'}`}>
 
             {/* PC/Medium layout */}
             <div className="hidden md:flex justify-between items-center">
@@ -32,13 +33,18 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
                 {item.note && <p className="text-[13px] text-slate-500 mb-3">{item.note}</p>}
                 <p className="text-[15px] font-bold text-slate-700">฿{item.price} x{item.quantity}</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-3 bg-[#e2e8f0] rounded-full px-1.5 py-0.5">
-                  <button onClick={() => onUpdateQuantity(idx, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">-</button>
-                  <span className="w-4 text-center text-xs font-bold text-slate-700">{item.quantity}</span>
-                  <button onClick={() => onUpdateQuantity(idx, +1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">+</button>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 bg-[#e2e8f0] rounded-full px-1.5 py-0.5">
+                    <button onClick={() => onUpdateQuantity(idx, -1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">-</button>
+                    <span className="w-4 text-center text-xs font-bold text-slate-700">{item.quantity}</span>
+                    <button onClick={() => onUpdateQuantity(idx, +1)} className="w-6 h-6 flex items-center justify-center text-slate-600 font-bold">+</button>
+                  </div>
+                  <button onClick={() => onRemove(idx)} className="px-6 py-2 bg-white border border-[#48c7a6] text-[#cc4c4c] rounded-[10px] text-sm font-bold shadow-sm hover:bg-slate-50">ลบ</button>
                 </div>
-                <button onClick={() => onRemove(idx)} className="px-6 py-2 bg-white border border-[#48c7a6] text-[#cc4c4c] rounded-[10px] text-sm font-bold shadow-sm hover:bg-slate-50">ลบ</button>
+                {item.unavailable && (
+                  <p className="text-xs text-red-500 font-bold">ปิดการขายแล้ว — กรุณาลบออก</p>
+                )}
               </div>
             </div>
 
@@ -62,6 +68,9 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
                 </div>
               </div>
               <button onClick={() => onRemove(idx)} className="w-full py-2.5 bg-white border border-[#48c7a6] text-[#cc4c4c] rounded-[10px] text-sm font-bold shadow-sm hover:bg-slate-50">ลบ</button>
+              {item.unavailable && (
+                <p className="text-xs text-red-500 font-bold mt-2 text-center">ปิดการขายแล้ว — กรุณาลบออก</p>
+              )}
             </div>
 
           </div>
@@ -75,7 +84,8 @@ export default function CustomerCartTab({ cart, onRemove, onUpdateQuantity, onSu
         </div>
         <button
           onClick={onSubmit}
-          className="w-full lg:w-auto px-10 py-4 bg-[#4db8a6] hover:bg-[#3ca493] text-white rounded-[16px] text-xl font-bold shadow-md transition-colors"
+          disabled={hasUnavailable}
+          className={`w-full lg:w-auto px-10 py-4 text-white rounded-[16px] text-xl font-bold shadow-md transition-colors ${hasUnavailable ? 'bg-slate-300 cursor-not-allowed' : 'bg-[#4db8a6] hover:bg-[#3ca493]'}`}
         >
           สั่งอาหาร
         </button>

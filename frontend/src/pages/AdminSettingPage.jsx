@@ -30,6 +30,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   const [activeTab, setActiveTab] = useState('orders_tables');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showTableSelect, setShowTableSelect] = useState(false);
+  const [showCategoryView, setShowCategoryView] = useState(false);
 
   // --- State ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
@@ -195,20 +196,48 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       {/* Main Content Area */}
       <main className="max-w-[500px] md:max-w-3xl lg:max-w-6xl mx-auto px-4 pb-8">
 
+        {/* Mobile: ปุ่มย้อนกลับอยู่นอก white card */}
+        {activeTab === 'orders_tables' && showTableSelect && (
+          <div className="md:hidden mt-4 mb-3">
+            <button
+              onClick={() => setShowTableSelect(false)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50"
+            >
+              ← ย้อนกลับ
+            </button>
+          </div>
+        )}
+        {activeTab === 'menu' && showCategoryView && (
+          <div className="md:hidden mt-4 mb-3">
+            <button
+              onClick={() => setShowCategoryView(false)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm hover:bg-slate-50"
+            >
+              ← ย้อนกลับ
+            </button>
+          </div>
+        )}
+
         {/* Unified White Board */}
-        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white/40 overflow-hidden min-h-[600px] flex flex-col">
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white/40 overflow-hidden md:min-h-[600px] flex flex-col">
 
           <AdminTabBar
             tabs={TABS}
             activeTab={activeTab}
-            onTabChange={(tab) => { setActiveTab(tab); setShowTableSelect(false); }}
+            onTabChange={(tab) => { setActiveTab(tab); setShowTableSelect(false); setShowCategoryView(false); }}
           />
 
           {/* Content Area */}
           <div className="p-4 md:p-8 flex-1">
             {activeTab === 'orders_tables' && showTableSelect && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                {/* Mobile: title + refresh ตรงกลาง */}
+                <div className="flex flex-col items-center gap-4 border-b border-slate-100 pb-4 md:hidden">
+                  <h2 className="text-2xl font-black text-[#0B3D4A]">เลือกโต๊ะให้ลูกค้า</h2>
+                  <RefreshButton onClick={fetchTables} />
+                </div>
+                {/* Desktop: back + title ซ้าย, refresh ขวา */}
+                <div className="hidden md:flex items-center justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setShowTableSelect(false)}
@@ -344,7 +373,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
             )}
 
             {activeTab === 'menu' && (
-              <MenuManagementPage user={user} token={token} />
+              <MenuManagementPage user={user} token={token} showCategoryView={showCategoryView} setShowCategoryView={setShowCategoryView} />
             )}
             {activeTab === 'restaurant' && (
               <RestaurantManagementPage user={user} token={token} />

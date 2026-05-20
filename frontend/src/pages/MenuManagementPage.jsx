@@ -5,7 +5,7 @@ import CategoryManagement from '../components/CategoryManagement';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
-export default function MenuManagementPage({ user, token }) {
+export default function MenuManagementPage({ user, token, showCategoryView, setShowCategoryView }) {
     const restaurantId = user?.restaurantId;
 
     const [menus, setMenus] = useState([]);
@@ -15,7 +15,7 @@ export default function MenuManagementPage({ user, token }) {
     const [showAddPopup, setShowAddPopup] = useState(false);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [editingMenu, setEditingMenu] = useState(null);
-    const [showCategoryView, setShowCategoryView] = useState(false);
+
 
     const fetchMenus = useCallback(async () => {
         if (!restaurantId) return;
@@ -106,7 +106,7 @@ export default function MenuManagementPage({ user, token }) {
                 ) : menus.length === 0 ? (
                     <p className="text-sm text-slate-400">ยังไม่มีเมนู — กด "เพิ่ม" เพื่อเริ่มต้น</p>
                 ) : (
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {menus.map((menu) => (
                             <MenuCard
                                 key={menu._id}

@@ -198,9 +198,27 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
 
     const handleSubmit = async () => {
         if (!menuName.trim()) { toast.error('กรุณากรอกชื่อเมนู'); return; }
-        if (!price) { toast.error('กรุณากรอกราคา'); return; }
+        if (price === '' ) { toast.error('กรุณากรอกราคา'); return; }
+        if (Number(price) <= 0) { toast.error('ราคาต้องมากกว่า 0'); return; }
         if (!categoryId) { toast.error('กรุณาเลือกหมวดหมู่'); return; }
+        for (const opt of options) {
+            if (!(opt.name || '').trim()) {
+                toast.error('กรุณากรอกชื่อ Option');
+                return;
+}
 
+            if (!opt.choices || opt.choices.length === 0) {
+                toast.error(`Option "${opt.name}" ต้องมีตัวเลือกย่อย`);
+                return;
+            }
+
+            for (const ch of opt.choices) {
+                if (!(ch.name || '').trim()) {
+                toast.error(`กรุณากรอกชื่อ choice ใน Option "${opt.name}"`);
+                return;
+                }
+            }
+        }
         setSaving(true);
         try {
             const fd = new FormData();
@@ -256,6 +274,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                                 <label className="block text-[15px] font-black text-[#0B3D4A] mb-3">ราคา (บาท)</label>
                                 <input
                                     type="number"
+                                    min="1"
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
                                     placeholder="กรอกราคา"

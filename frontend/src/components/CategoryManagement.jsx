@@ -85,7 +85,7 @@ export default function CategoryManagement({ categories = [], restaurantId, toke
             {categories.length === 0 ? (
                 <p className="text-sm text-slate-400">ยังไม่มีหมวดหมู่</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-3">
                     {categories.map(cat => (
                         <CategoryCard
                             key={cat._id}

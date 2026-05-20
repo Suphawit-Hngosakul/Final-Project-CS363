@@ -1,10 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
-function OptionsBuilder({ options, onChange }) {
+function OptionsBuilder({ options, onChange, existingOptions = [] }) {
+    const selectRef = useRef(null);
     const addOpt = () => onChange([...options, { name: '', required: false, choices: [] }]);
+
+    const addExistingOpt = (e) => {
+        const name = e.target.value;
+        if (!name) return;
+        const opt = existingOptions.find(o => o.name === name);
+        if (opt) onChange([...options, JSON.parse(JSON.stringify({ name: opt.name, required: opt.required, choices: opt.choices ?? [] }))]);
+        e.target.value = '';
+    };
     const removeOpt = (i) => onChange(options.filter((_, idx) => idx !== i));
     const setOpt = (i, field, val) => {
         const next = [...options]; next[i] = { ...next[i], [field]: val }; onChange(next);
@@ -29,15 +38,30 @@ function OptionsBuilder({ options, onChange }) {
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center justify-between">
-                <label className="text-[15px] font-black text-[#0B3D4A]">ตัวเลือก (OPTIONS)</label>
-                <button
-                    type="button"
-                    onClick={addOpt}
-                    className="text-sm px-3 py-1 border border-[#AEE1D3] rounded-full text-[#0B3D4A] bg-white hover:bg-slate-50"
-                >
-                    + เพิ่ม Option
-                </button>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+                <label className="text-[15px] font-black text-[#0B3D4A] shrink-0">ตัวเลือก (OPTIONS)</label>
+                <div className="flex items-center gap-2 flex-wrap">
+                    {existingOptions.length > 0 && (
+                        <select
+                            ref={selectRef}
+                            onChange={addExistingOpt}
+                            defaultValue=""
+                            className="text-sm border border-[#AEE1D3] rounded-full px-3 py-1 text-[#0B3D4A] bg-white hover:bg-slate-50 outline-none cursor-pointer"
+                        >
+                            <option value="">+ จาก option เดิม</option>
+                            {existingOptions.map((opt, i) => (
+                                <option key={i} value={opt.name}>{opt.name}</option>
+                            ))}
+                        </select>
+                    )}
+                    <button
+                        type="button"
+                        onClick={addOpt}
+                        className="text-sm px-3 py-1 border border-[#AEE1D3] rounded-full text-[#0B3D4A] bg-white hover:bg-slate-50"
+                    >
+                        + เพิ่ม Option
+                    </button>
+                </div>
             </div>
 
             {options.length === 0 && (
@@ -121,7 +145,7 @@ function OptionsBuilder({ options, onChange }) {
     );
 }
 
-export default function MenuPopup({ show, onClose, type = 'add', menu = null, restaurantId, token, categories = [], onSave }) {
+export default function MenuPopup({ show, onClose, type = 'add', menu = null, restaurantId, token, categories = [], onSave, menus = [] }) {
     const isEdit = type === 'edit';
     const fileRef = useRef(null);
 
@@ -133,6 +157,18 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
     const [imageFile, setImageFile] = useState(null);
     const [imageFileName, setImageFileName] = useState('');
     const [saving, setSaving] = useState(false);
+
+    const existingOptions = useMemo(() => {
+        const seen = new Set();
+        return menus
+            .filter(m => !isEdit || m._id !== menu?._id)
+            .flatMap(m => m.options ?? [])
+            .filter(opt => {
+                if (!opt.name || seen.has(opt.name)) return false;
+                seen.add(opt.name);
+                return true;
+            });
+    }, [menus, isEdit, menu?._id]);
 
     useEffect(() => {
         if (!show) {
@@ -174,6 +210,7 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
             fd.append('description', description);
             if (options.length) fd.append('options', JSON.stringify(options));
             if (imageFile) fd.append('image', imageFile);
+            else fd.append('imageUrl', imageFileName);
 
             let result;
             if (isEdit) {
@@ -252,28 +289,37 @@ export default function MenuPopup({ show, onClose, type = 'add', menu = null, re
                             />
                         </div>
 
-                        <OptionsBuilder options={options} onChange={setOptions} />
+                        <OptionsBuilder options={options} onChange={setOptions} existingOptions={existingOptions} />
 
                         <div>
                             <label className="block text-[15px] font-black text-[#0B3D4A] mb-3">รูปภาพ (ไม่บังคับ)</label>
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                            <div className="flex items-center gap-2">
                                 <input
                                     type="text"
-                                    placeholder="URL หรือ ชื่อไฟล์"
+                                    placeholder="วาง URL รูปภาพ เช่น https://..."
                                     value={imageFileName}
-                                    readOnly
-                                    className="flex-1 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 outline-none shadow-sm"
+                                    onChange={(e) => { setImageFileName(e.target.value); setImageFile(null); }}
+                                    className="flex-1 bg-white border border-[#E6EEF0] rounded-xl px-4 py-3 outline-none focus:border-[#0B3D4A] shadow-sm"
                                 />
+                                {imageFileName && (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setImageFileName(''); setImageFile(null); }}
+                                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 hover:bg-red-100 text-red-400 border border-red-200 shrink-0"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                                 <button
                                     type="button"
                                     onClick={() => fileRef.current?.click()}
-                                    className="w-full sm:w-auto px-4 py-2 bg-white border border-[#AEE1D3] rounded-lg text-[#0B3D4A] font-bold shadow-sm hover:bg-slate-50"
+                                    className="px-4 py-3 bg-white border border-[#AEE1D3] rounded-xl text-[#0B3D4A] text-sm font-bold shadow-sm hover:bg-slate-50 shrink-0"
                                 >
                                     อัปโหลดไฟล์
                                 </button>
                             </div>
-                            <p className="text-xs text-slate-400 mt-2">หมายเหตุ: การอัปโหลดไฟล์ (file จะถูกใช้แทน URL)</p>
+                            {imageFile && <p className="text-xs text-slate-500 mt-1">{imageFile.name}</p>}
                         </div>
                     </div>
                 </div>

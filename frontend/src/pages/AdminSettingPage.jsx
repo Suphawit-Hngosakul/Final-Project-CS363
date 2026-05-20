@@ -175,7 +175,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed font-sans text-slate-800"
+      className="min-h-screen min-w-[375px] bg-cover bg-center bg-no-repeat bg-fixed font-sans text-slate-800"
       style={{ backgroundImage: `url(${bgImage})`, backgroundColor: '#f0f4f8' }}
     >
       {/* Header */}
@@ -193,7 +193,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4 pb-8">
+      <main className="max-w-[500px] md:max-w-3xl lg:max-w-6xl mx-auto px-4 pb-8">
 
         {/* Unified White Board */}
         <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white/40 overflow-hidden min-h-[600px] flex flex-col">

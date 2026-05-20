@@ -75,31 +75,30 @@ export default function MenuManagementPage({ user, token }) {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h2 className="text-3xl font-black text-[#0B3D4A]">จัดการเมนูอาหาร</h2>
-                    <p className="mt-3 text-sm text-[#475569] max-w-2xl">
-                        เพิ่ม แก้ไข และจัดการเมนูอาหารของร้าน พร้อมตรวจสอบสถานะการขายได้ทันที
-                    </p>
-                </div>
+            {!showCategoryView && (
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-3xl font-black text-[#0B3D4A]">จัดการเมนูอาหาร</h2>
+                    </div>
 
-                <div className="flex flex-wrap gap-3">
-                    <button
-                        type="button"
-                        onClick={() => setShowCategoryView(true)}
-                        className="px-5 py-3 bg-white border border-[#AEE1D3] text-[#0B3D4A] rounded-2xl font-bold shadow-sm hover:bg-slate-50 transition-colors"
-                    >
-                        จัดการหมวดหมู่
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setShowAddPopup(true)}
-                        className="px-5 py-3 bg-[#0B3D4A] text-white rounded-2xl font-bold shadow-sm hover:opacity-90 transition-opacity"
-                    >
-                        เพิ่ม
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowCategoryView(true)}
+                            className="px-5 py-3 bg-white border border-[#AEE1D3] text-[#0B3D4A] rounded-2xl font-bold shadow-sm hover:bg-slate-50 transition-colors"
+                        >
+                            จัดการหมวดหมู่
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowAddPopup(true)}
+                            className="px-5 py-3 bg-[#0B3D4A] text-white rounded-2xl font-bold shadow-sm hover:opacity-90 transition-opacity"
+                        >
+                            เพิ่ม
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {!showCategoryView && (
                 loading ? (
@@ -107,7 +106,7 @@ export default function MenuManagementPage({ user, token }) {
                 ) : menus.length === 0 ? (
                     <p className="text-sm text-slate-400">ยังไม่มีเมนู — กด "เพิ่ม" เพื่อเริ่มต้น</p>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {menus.map((menu) => (
                             <MenuCard
                                 key={menu._id}

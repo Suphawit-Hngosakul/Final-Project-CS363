@@ -3,10 +3,8 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import swaggerUi from 'swagger-ui-express'
 import connectDB from './config/db.js'
 import errorHandler from './middleware/errorHandler.js'
-import swaggerDefinition from './config/swagger.js'
 import authRoutes from './routes/auth.js'
 import restaurantRoutes from './routes/restaurant.js'
 import categoryRoutes from './routes/categories.js'
@@ -56,11 +54,6 @@ io.on('connection', (socket) => {
 })
 
 connectDB()
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDefinition, {
-  customSiteTitle: 'EzyOrder API Docs',
-  swaggerOptions: { persistAuthorization: true },
-}))
 
 app.get('/', (_req, res) => res.json({ message: 'EzyOrder API running' }))
 app.use('/api', publicRoutes)

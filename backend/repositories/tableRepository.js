@@ -15,7 +15,6 @@ export const insertMany = (docs) => Table.insertMany(docs)
 
 export const deleteMany = (filter) => Table.deleteMany(filter)
 
-// Atomically claim an available table — returns the updated doc, or null if already taken
 export const claimIfAvailable = (tableId, sessionId) =>
   Table.findOneAndUpdate(
     { _id: tableId, status: 'available' },

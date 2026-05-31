@@ -24,8 +24,8 @@ export const createMenuItem = async (restaurantId, body, file) => {
   }
 
   let image = ''
-  if (file) image = file.path          // Cloudinary URL
-  else if (imageUrl) image = imageUrl  // URL ตรงๆ
+  if (file) image = file.path
+  else if (imageUrl) image = imageUrl
 
   return menuRepo.create({
     restaurantId,
@@ -49,9 +49,9 @@ export const updateMenuItem = async (id, body, file, adminRestaurantId) => {
   if (options !== undefined) updateData.options = parseOptions(options)
 
   if (file) {
-    updateData.image = file.path       // Cloudinary URL
+    updateData.image = file.path
   } else if (imageUrl !== undefined) {
-    updateData.image = imageUrl        // URL ตรงๆ
+    updateData.image = imageUrl
   }
 
   return menuRepo.update(id, updateData)

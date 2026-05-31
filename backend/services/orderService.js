@@ -16,7 +16,7 @@ export const placeOrder = async (tableId, rawItems) => {
     throw createError(400, 'Table is waiting for payment, cannot place new order')
   }
 
-  // ถ้าโต๊ะว่าง → atomic claim เพื่อป้องกัน race condition
+  // ถ้าโต๊ะว่าง atomic claim เพื่อป้องกัน race condition
   let sessionId = table.currentSessionId
   if (table.status === 'available' || !sessionId) {
     const newSessionId = uuidv4()
@@ -24,7 +24,7 @@ export const placeOrder = async (tableId, rawItems) => {
     if (claimed) {
       sessionId = newSessionId
     } else {
-      // request อื่น claim ไปก่อน → ดึงข้อมูลล่าสุด
+      // request อื่น claim ไปก่อน ดึงข้อมูลล่าสุด
       const refreshed = await tableRepo.findById(tableId)
       if (refreshed.status === 'payment') {
         throw createError(400, 'Table is waiting for payment, cannot place new order')

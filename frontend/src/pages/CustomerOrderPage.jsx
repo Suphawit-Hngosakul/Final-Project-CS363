@@ -25,7 +25,6 @@ export default function CustomerOrderPage({ user, token }) {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
 
-  // เช็คว่าร้านตั้ง PIN ไว้หรือยัง — ถ้ายังจะ fallback ไปใช้รหัสผ่านบัญชี
   useEffect(() => {
     if (!user?.restaurantId || !token) return;
     call('GET', `/api/restaurant/${user.restaurantId}`, null, token)
@@ -100,7 +99,6 @@ export default function CustomerOrderPage({ user, token }) {
     if (!passwordInput || verifying) return;
     setVerifying(true);
     try {
-      // มี PIN → ตรวจด้วย PIN ของร้าน, ยังไม่มี → fallback เป็นรหัสผ่านบัญชี
       if (hasPin) {
         await call('POST', `/api/restaurant/${user.restaurantId}/pin/verify`, { pin: passwordInput }, token);
       } else {
@@ -123,11 +121,8 @@ export default function CustomerOrderPage({ user, token }) {
       {/* Header */}
       <header className="flex justify-between items-center p-6 pb-2">
         <div className="flex items-center gap-4">
-          {/* Hamburger — แสดงเฉพาะ mobile */}
-          <button
-            onClick={() => setShowDrawer(true)}
-            className="md:hidden flex flex-col gap-1.5 p-1"
-          >
+          {/*Hamburger menu*/}
+          <button onClick={() => setShowDrawer(true)} className="md:hidden flex flex-col gap-1.5 p-1">
             <span className="block w-6 h-0.5 bg-[#0B3D4A]" />
             <span className="block w-6 h-0.5 bg-[#0B3D4A]" />
             <span className="block w-6 h-0.5 bg-[#0B3D4A]" />
@@ -135,24 +130,21 @@ export default function CustomerOrderPage({ user, token }) {
           <h1 className="text-[28px] font-black text-[#0B3D4A]">EzyOrder</h1>
         </div>
 
-        {/* Tab bar + info — แสดงเฉพาะ md ขึ้นไป */}
+        {/* Tab bar*/}
         <div className="hidden md:flex items-center gap-6">
           <span className="font-bold text-[#0B3D4A]">Table: {tableId || '1'}</span>
           <button
             onClick={handleBackToAdmin}
-            className="px-4 py-1.5 bg-white border border-[#0B3D4A] rounded-xl text-sm font-bold text-[#0B3D4A] hover:bg-slate-50 transition shadow-sm"
-          >
+            className="px-4 py-1.5 bg-white border border-[#0B3D4A] rounded-xl text-sm font-bold text-[#0B3D4A] hover:bg-slate-50 transition shadow-sm">
             กลับไปที่ admin
           </button>
         </div>
       </header>
 
-      {/* Side Drawer — mobile only */}
+      {/* Side drawer*/}
       {showDrawer && (
         <div className="fixed inset-0 z-[9998] md:hidden">
-          {/* Overlay */}
           <div className="absolute inset-0 bg-black/30" onClick={() => setShowDrawer(false)} />
-          {/* Drawer */}
           <div className="absolute left-0 top-0 bottom-0 w-72 bg-white flex flex-col p-8 shadow-2xl">
             <div className="flex justify-between items-center mb-10">
               <h1 className="text-[24px] font-black text-[#0B3D4A]">EzyOrder</h1>
@@ -180,13 +172,12 @@ export default function CustomerOrderPage({ user, token }) {
               ))}
             </nav>
 
-            {/* Bottom: Table + กลับ admin */}
+            {/* ปุ่มกลับไปที่หน้า admin */}
             <div className="flex flex-col items-center gap-3 pt-6 border-t border-slate-200">
               <span className="font-bold text-[#0B3D4A]">Table: {tableId || '1'}</span>
               <button
                 onClick={handleBackToAdmin}
-                className="w-full px-4 py-2 bg-white border border-[#0B3D4A] rounded-xl text-sm font-bold text-[#0B3D4A] hover:bg-slate-50 transition"
-              >
+                className="w-full px-4 py-2 bg-white border border-[#0B3D4A] rounded-xl text-sm font-bold text-[#0B3D4A] hover:bg-slate-50 transition">
                 กลับไปที่ admin
               </button>
             </div>
@@ -197,8 +188,7 @@ export default function CustomerOrderPage({ user, token }) {
       {/* Main Content */}
       <main className="flex-1 w-full mx-auto px-4 pb-8 flex flex-col mt-2 max-w-[500px] md:max-w-[720px] lg:max-w-[1000px]">
         <div className="bg-white/50 backdrop-blur-xl rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.05)] border border-white/60 flex-1 flex flex-col min-h-[600px] overflow-hidden">
-          
-          {/* Tab bar — ซ่อนที่ mobile ใช้ drawer แทน */}
+          {/* ซ่อนที่  tab */}
           <div className="hidden md:block">
             <AdminTabBar
               tabs={[
@@ -211,7 +201,7 @@ export default function CustomerOrderPage({ user, token }) {
             />
           </div>
 
-          {/* Tab Content */}
+          {/*Tab*/}
           <div className="flex-1 flex flex-col relative h-full p-6">
             {activeTab === 'menu' && <CustomerMenuTab onAddToCart={addToCart} user={user} />}
             {activeTab === 'cart' && <CustomerCartTab cart={cart} onRemove={removeFromCart} onUpdateQuantity={updateCartQuantity} onSubmit={submitOrder} onRefresh={refreshCart} />}
@@ -220,7 +210,7 @@ export default function CustomerOrderPage({ user, token }) {
         </div>
       </main>
 
-      {/* Admin Password Modal */}
+      {/* Admin password*/}
       {showPasswordModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-8 w-80 shadow-2xl flex flex-col items-center gap-4">
@@ -241,15 +231,13 @@ export default function CustomerOrderPage({ user, token }) {
               <button
                 onClick={() => setShowPasswordModal(false)}
                 disabled={verifying}
-                className="flex-1 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
-              >
+                className="flex-1 py-2 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-60">
                 ยกเลิก
               </button>
               <button
                 onClick={confirmPassword}
                 disabled={verifying}
-                className="flex-1 py-2 bg-[#0B3D4A] text-white rounded-xl font-bold hover:opacity-90 disabled:opacity-60"
-              >
+                className="flex-1 py-2 bg-[#0B3D4A] text-white rounded-xl font-bold hover:opacity-90 disabled:opacity-60">
                 {verifying ? 'กำลังตรวจสอบ...' : 'ยืนยัน'}
               </button>
             </div>

@@ -27,7 +27,7 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
         style={{ maxHeight: 'calc(100vh - 80px)' }}
       >
         
-        {/* Header Image (Optional, if item has image) */}
+        {/* Header Image */}
         <div className="bg-[#dcdfe4] h-48 w-full relative rounded-t-[18px]">
           {item.image && (
             <img src={imgSrc(item.image)} alt={item.name} className="w-full h-full object-cover rounded-t-[18px]" />
@@ -46,7 +46,7 @@ export default function CustomerMenuModal({ item, onClose, onAdd }) {
           <p className="text-sm text-slate-500 mb-2">{item.description || 'ไม่มีคำอธิบาย'}</p>
           <p className="font-bold text-[#0B3D4A] mb-6">฿ {item.price}</p>
 
-          {/* Options จริงจาก API */}
+          {/* Options */}
           {(item.options || []).map((opt, optIdx) => (
             <div key={optIdx} className="mb-6">
               <div className="flex justify-between items-center mb-3">

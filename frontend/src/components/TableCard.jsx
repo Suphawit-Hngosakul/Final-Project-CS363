@@ -9,7 +9,6 @@ export default function TableCard({ table, token }) {
   const [status, setStatus] = useState(table?.status || 'available');
   const [updating, setUpdating] = useState(false);
 
-  // sync สถานะเมื่อ prop เปลี่ยน (เช่น parent โหลดข้อมูลโต๊ะใหม่)
   useEffect(() => {
     setStatus(table?.status || 'available');
   }, [table?.status]);

@@ -106,12 +106,12 @@ export default function ReportsPage({ user, token }) {
           <p className="text-sm text-slate-400">ยังไม่มีข้อมูล</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ minHeight: 160 }}>
-            {/* #1 large */}
+            {/* #1 */}
             <div>
               <RankCard rank={1} item={popularItems[0]} large />
             </div>
 
-            {/* #2 and #3 stacked */}
+            {/* #2 and #3 */}
             <div className="flex flex-col gap-4">
               <RankCard rank={2} item={popularItems[1]} />
               <RankCard rank={3} item={popularItems[2]} />

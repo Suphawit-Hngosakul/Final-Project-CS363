@@ -3,7 +3,6 @@ import CategoryCard from './CategoryCard';
 import { call } from '../utils/api';
 import { toast } from 'react-hot-toast';
 
-// categories ถูกถือไว้โดย parent (MenuManagementPage) — component นี้แก้ผ่าน onCategoriesChange เท่านั้น
 export default function CategoryManagement({ categories = [], restaurantId, token, onCategoriesChange, onClose }) {
     const [newName, setNewName] = useState('');
     const [editingId, setEditingId] = useState(null);

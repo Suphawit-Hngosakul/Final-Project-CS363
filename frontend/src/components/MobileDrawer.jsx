@@ -50,7 +50,7 @@ export default function MobileDrawer({ open, onClose, tabs, activeTab, onTabChan
           })}
         </nav>
 
-        {/* Footer — user + logout */}
+        {/* Footer */}
         <div className="px-6 pb-8 pt-4 border-t border-slate-100 flex flex-col items-center gap-3">
           <span className="text-sm font-semibold text-[#0B3D4A]">
             {user?.name || 'ชื่อ user'}

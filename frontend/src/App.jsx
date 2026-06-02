@@ -10,7 +10,6 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [user, setUser] = useState(null);
 
-  // โหลดข้อมูล user เมื่อมี token
   useEffect(() => {
     if (!token) return;
     call('GET', '/api/auth/me', null, token)
@@ -33,7 +32,6 @@ export default function App() {
     setUser(null);
   };
 
-  // ถ้ายังไม่ login ให้แสดงหน้า AuthScreen
   if (!token) {
     return (
       <>
@@ -49,7 +47,6 @@ export default function App() {
     );
   }
 
-  // ถ้า login แล้ว ให้แสดงหน้า AdminSettingPage
   return (
     <>
       <Routes>

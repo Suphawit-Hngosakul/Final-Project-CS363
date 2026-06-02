@@ -23,7 +23,6 @@ const TABS = [
   { id: 'reports', label: 'รายงาน' }
 ];
 
-// ตัวเลือกกรองออเดอร์ = "ทั้งหมด" + สถานะทั้งหมด
 const FILTERS = ['ทั้งหมด', ...ORDER_STATUSES];
 
 export default function AdminSettingPage({ user, onLogout, token }) {
@@ -31,8 +30,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showTableSelect, setShowTableSelect] = useState(false);
   const [showCategoryView, setShowCategoryView] = useState(false);
-
-  // --- State ---
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState('');
   const [selectedCheckoutTable, setSelectedCheckoutTable] = useState('');
@@ -40,8 +37,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
   const [checkoutData, setCheckoutData] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('ทั้งหมด');
   const [rawOrders, setRawOrders] = useState([]);
-
-  // flatten API orders → รูปแบบที่ OrderItemCard ใช้
   const flatOrders = rawOrders.flatMap(order => {
     const table = tables.find(t => t._id === order.tableId?.toString() || t._id === order.tableId);
     if (!table?.currentSessionId) return [];
@@ -86,7 +81,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     fetchOrders();
   }, [user?.restaurantId, fetchTables, fetchOrders]);
 
-  // Realtime: รับ event ใหม่จาก socket แทนต้องกด Refresh
   useEffect(() => {
     if (!user?.restaurantId) return;
     const socket = getSocket();
@@ -96,12 +90,10 @@ export default function AdminSettingPage({ user, onLogout, token }) {
     joinRoom();
     socket.on('connect', joinRoom);
 
-    // มี order ใหม่ → โหลดทั้ง tables (session ใหม่) และ orders ใหม่
     const onNewOrder = () => {
       fetchTables();
       fetchOrders();
     };
-    // staff คนอื่นเปลี่ยนสถานะ → patch state local
     const onStatusUpdate = ({ orderId, status }) => {
       setRawOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
     };
@@ -115,7 +107,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       socket.off('order_status_updated', onStatusUpdate);
     };
   }, [user?.restaurantId, fetchTables, fetchOrders]);
-  // เมื่อเลือกโต๊ะใน Modal
   const handleSelectTable = async (tableNum) => {
     setSelectedTable(tableNum);
     if (!tableNum) {
@@ -182,7 +173,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       {/* Header */}
       <TopNavBar user={user} onLogout={onLogout} onOpenMenu={() => setDrawerOpen(true)} />
 
-      {/* Mobile Drawer */}
+      {/* Mobile drawer */}
       <MobileDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -196,7 +187,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
       {/* Main Content Area */}
       <main className="max-w-[500px] md:max-w-3xl lg:max-w-6xl mx-auto px-4 pb-8">
 
-        {/* Mobile: ปุ่มย้อนกลับอยู่นอก white card */}
+        {/* ปุ่มย้อนกลับนอกกล่องขาว */}
         {activeTab === 'orders_tables' && showTableSelect && (
           <div className="md:hidden mt-4 mb-3">
             <button
@@ -218,25 +209,19 @@ export default function AdminSettingPage({ user, onLogout, token }) {
           </div>
         )}
 
-        {/* Unified White Board */}
         <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white/40 overflow-hidden md:min-h-[600px] flex flex-col">
-
           <AdminTabBar
             tabs={TABS}
             activeTab={activeTab}
             onTabChange={(tab) => { setActiveTab(tab); setShowTableSelect(false); setShowCategoryView(false); }}
           />
-
-          {/* Content Area */}
           <div className="p-4 md:p-8 flex-1">
             {activeTab === 'orders_tables' && showTableSelect && (
               <div className="space-y-6">
-                {/* Mobile: title + refresh ตรงกลาง */}
                 <div className="flex flex-col items-center gap-4 border-b border-slate-100 pb-4 md:hidden">
                   <h2 className="text-2xl font-black text-[#0B3D4A]">เลือกโต๊ะให้ลูกค้า</h2>
                   <RefreshButton onClick={fetchTables} />
                 </div>
-                {/* Desktop: back + title ซ้าย, refresh ขวา */}
                 <div className="hidden md:flex items-center justify-between border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-4">
                     <button
@@ -288,7 +273,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                   <h3 className="text-sm font-black text-[#0B3D4A]">ชำระเงิน:</h3>
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:max-w-sm">
 
-                    {/* Select Table */}
+                    {/* Select table */}
                     <div className="flex-1">
                       <Select
                         value={selectedCheckoutTable}
@@ -303,7 +288,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                       />
                     </div>
 
-                    {/* Checkout Button */}
+                    {/* Checkout button */}
                     <button
                       onClick={async () => {
                         if (!selectedCheckoutTable) {
@@ -330,7 +315,6 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                 {/* จัดการออเดอร์ */}
                 <div className="space-y-4 pt-2">
                   <h3 className="text-sm font-black text-[#0B3D4A]">จัดการออเดอร์:</h3>
-                  {/* Mobile: dropdown */}
                   <div className="flex items-center gap-2 md:hidden">
                     <span className="text-xs text-[#0B3D4A] font-bold shrink-0">กรอง:</span>
                     <div className="flex-1 max-w-[180px]">
@@ -345,7 +329,7 @@ export default function AdminSettingPage({ user, onLogout, token }) {
                     </div>
                   </div>
 
-                  {/* Desktop: filter buttons */}
+                  {/* Filter butons */}
                   <div className="hidden md:flex flex-wrap items-center gap-2">
                     <span className="text-xs text-[#0B3D4A] font-bold mr-1">กรอง:</span>
                     {FILTERS.map(filter => (

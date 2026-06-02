@@ -33,7 +33,7 @@ export default function CheckoutModal({
 
                 {/* Header */}
                 <div className="px-4 pt-6 pb-4 md:px-8 md:pt-8 flex items-center justify-between gap-4">
-                    {/* ย้อนกลับ — mobile only */}
+                    {/* ปุ่มย้อนกลับ — mobile */}
                     <button
                         onClick={onClose}
                         className="md:hidden flex items-center gap-1.5 px-3 py-2 bg-white border border-[#AEE1D3] rounded-xl text-sm font-bold text-[#0B3D4A] shadow-sm"

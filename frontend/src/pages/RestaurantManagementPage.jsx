@@ -59,7 +59,6 @@ export default function RestaurantManagementPage({ user, token }) {
   const [newPin, setNewPin] = useState('');
   const [savingPin, setSavingPin] = useState(false);
 
-  // โหลดข้อมูลร้าน — ใช้รู้ว่าตั้ง PIN ไว้หรือยัง (hasPin) และเตรียมข้อมูลฟอร์ม
   const loadRestaurant = async () => {
     if (!restaurantId) return;
     const res = await call('GET', `/api/restaurant/${restaurantId}`, null, token);
@@ -89,7 +88,6 @@ export default function RestaurantManagementPage({ user, token }) {
       if (hasPin) {
         await call('POST', `/api/restaurant/${restaurantId}/pin/verify`, { pin: value }, token);
       } else {
-        // ร้านยังไม่ได้ตั้ง PIN → ปลดล็อกครั้งแรกด้วยรหัสผ่านบัญชี
         await call('POST', '/api/auth/verify-password', { password: value }, token);
       }
       setUnlocked(true);
@@ -178,7 +176,7 @@ export default function RestaurantManagementPage({ user, token }) {
 
   return (
     <div className="space-y-8">
-      {/* ตั้งค่าขั้นพื้นฐาน */}
+      {/* ตั้งค่าพื้นฐาน */}
       <div className="space-y-5">
         <div className="flex items-center gap-2 text-[#0B3D4A]">
           <SettingsIcon />
@@ -222,7 +220,7 @@ export default function RestaurantManagementPage({ user, token }) {
         </div>
       </div>
 
-      {/* PIN ปลดล็อก */}
+      {/* PIN */}
       <div className="space-y-5">
         <div className="flex items-center gap-2 text-[#0B3D4A]">
           <SettingsIcon />
@@ -254,7 +252,7 @@ export default function RestaurantManagementPage({ user, token }) {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* footer */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2 border-t border-slate-200">
         <span className="text-sm text-slate-400">
           สร้างเมื่อ {formatDate(restaurant?.createdAt)}

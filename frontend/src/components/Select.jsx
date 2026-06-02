@@ -1,16 +1,5 @@
 import React from 'react';
 
-/**
- * Dropdown มาตรฐาน — รวม markup ของ <select> + ลูกศร chevron ไว้ที่เดียว
- *
- * props:
- *  - value, onChange, disabled : ส่งต่อให้ <select> ตรง ๆ
- *  - options      : [{ value, label }]
- *  - placeholder  : ข้อความ option ว่างตัวแรก (ไม่ใส่ = ไม่มี)
- *  - className    : class ของ <select> (กำหนดสี/ขอบ/ระยะเองได้)
- *  - chevronSize  : ขนาดลูกศร (px)
- *  - chevronColor : สีลูกศร
- */
 export default function Select({
   value,
   onChange,

@@ -19,8 +19,6 @@ export default function CustomerOrderHistoryTab({ tableId }) {
   }, [tableId]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
-
-  // Realtime: ฟังเหตุการณ์ของโต๊ะนี้ — ไม่ต้องกด Refresh
   useEffect(() => {
     if (!tableId) return;
     const socket = getSocket();
@@ -29,11 +27,9 @@ export default function CustomerOrderHistoryTab({ tableId }) {
     joinRoom();
     socket.on('connect', joinRoom);
 
-    // staff เปลี่ยนสถานะ → patch order ตัวที่ตรงกัน
     const onStatusUpdate = ({ orderId, status }) => {
       setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
     };
-    // โต๊ะจ่ายเงินแล้ว → session ใหม่ เคลียร์ประวัติ
     const onBillPaid = () => setOrders([]);
 
     socket.on('order_status_updated', onStatusUpdate);
